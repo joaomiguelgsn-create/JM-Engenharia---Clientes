@@ -861,36 +861,7 @@ button{cursor:pointer}
 
 
 <style>
-/* status orçamento robusto */
-.form-submit-note.success{
-  display:block !important;
-  color:#14532d !important;
-  background:linear-gradient(135deg,#dcfce7,#bbf7d0) !important;
-  border:1px solid #86efac !important;
-  border-radius:18px !important;
-  padding:16px 18px !important;
-  box-shadow:0 16px 34px rgba(22,101,52,.16) !important;
-  animation:statusPopJM .35s ease both !important;
-}
-.form-submit-note.sending{
-  display:block !important;
-  color:#92400e !important;
-  background:#fff7ed !important;
-  border:1px solid #fed7aa !important;
-  border-radius:16px !important;
-  padding:13px 16px !important;
-  box-shadow:0 12px 28px rgba(146,64,14,.10) !important;
-  animation:statusPopJM .28s ease both !important;
-}
-@keyframes statusPopJM{
-  from{opacity:0;transform:translateY(8px) scale(.98)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-</style>
-
-
-<style>
-/* status orçamento sem reload */
+/* status orçamento final estável */
 .form-submit-note{
   margin:14px auto 0;
   font-size:15px;
@@ -900,16 +871,6 @@ button{cursor:pointer}
   max-width:100%;
 }
 .form-submit-note:empty{display:none}
-.form-submit-note.success{
-  display:block !important;
-  color:#14532d !important;
-  background:linear-gradient(135deg,#dcfce7,#bbf7d0) !important;
-  border:1px solid #86efac !important;
-  border-radius:18px !important;
-  padding:16px 18px !important;
-  box-shadow:0 16px 34px rgba(22,101,52,.16) !important;
-  animation:statusPopJM .35s ease both !important;
-}
 .form-submit-note.sending{
   display:block !important;
   color:#92400e !important;
@@ -919,6 +880,16 @@ button{cursor:pointer}
   padding:13px 16px !important;
   box-shadow:0 12px 28px rgba(146,64,14,.10) !important;
   animation:statusPopJM .28s ease both !important;
+}
+.form-submit-note.success{
+  display:block !important;
+  color:#14532d !important;
+  background:linear-gradient(135deg,#dcfce7,#bbf7d0) !important;
+  border:1px solid #86efac !important;
+  border-radius:18px !important;
+  padding:16px 18px !important;
+  box-shadow:0 16px 34px rgba(22,101,52,.16) !important;
+  animation:statusPopJM .35s ease both !important;
 }
 .form-submit-note.error{
   display:block !important;
@@ -1000,6 +971,7 @@ button{cursor:pointer}
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" id="formsubmit-next" value="">
       <input type="text" name="_honey" style="display:none">
       <div class="quote-head">
         <h2>📋 Solicite seu orçamento</h2>
@@ -1953,49 +1925,62 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 
-
 <script>
-async function enviarOrcamentoJM(event) {
-  event.preventDefault();
+function dispositivoMobileJM() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
+}
 
-  const form = event.target;
+function setStatusOrcamentoJM(tipo, texto) {
   const status = document.getElementById("orcamento-status");
+  if (!status) return;
+  status.className = "form-submit-note " + tipo;
+  status.textContent = texto;
+}
+
+async function enviarOrcamentoJM(event) {
+  const form = event.target;
   const button = form.querySelector('button[type="submit"]');
   const originalText = button ? button.innerHTML : "🚀 Enviar solicitação";
+  const next = document.getElementById("formsubmit-next");
 
   if (button) {
     button.disabled = true;
     button.innerHTML = "⏳ Enviando...";
   }
 
-  if (status) {
-    status.className = "form-submit-note sending";
-    status.textContent = "Enviando sua solicitação...";
+  setStatusOrcamentoJM("sending", "Enviando sua solicitação...");
+
+  if (next) {
+    next.value = window.location.origin + window.location.pathname + "?orcamento=enviado#orcamento";
   }
 
-  const formData = new FormData(form);
+  // No celular, o FormSubmit está bloqueando envio invisível/fetch.
+  // Então aqui usamos o envio normal imediatamente, que foi o único que entregou no e-mail.
+  if (dispositivoMobileJM()) {
+    return true;
+  }
+
+  // No notebook, mantém sem recarregar.
+  event.preventDefault();
 
   try {
-    await fetch("https://formsubmit.co/jmnetoengenharia@gmail.com", {
+    const formData = new FormData(form);
+
+    const response = await fetch("https://formsubmit.co/ajax/jmnetoengenharia@gmail.com", {
       method: "POST",
       body: formData,
-      mode: "no-cors",
-      credentials: "omit",
-      cache: "no-store"
+      headers: { "Accept": "application/json" }
     });
 
-    if (status) {
-      status.className = "form-submit-note success";
-      status.textContent = "Solicitação enviada com sucesso. Em breve entraremos em contato.";
-    }
+    if (!response.ok) throw new Error("Falha no envio");
 
+    setStatusOrcamentoJM("success", "Solicitação enviada com sucesso. Em breve entraremos em contato.");
     form.reset();
 
   } catch (error) {
-    if (status) {
-      status.className = "form-submit-note error";
-      status.textContent = "Não foi possível enviar agora. Verifique sua conexão e tente novamente.";
-    }
+    // Se o AJAX do notebook falhar, envia de forma tradicional para não perder o cliente.
+    form.submit();
+    return true;
   } finally {
     if (button) {
       button.disabled = false;
@@ -2005,6 +1990,16 @@ async function enviarOrcamentoJM(event) {
 
   return false;
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("orcamento") === "enviado") {
+    setStatusOrcamentoJM("success", "Solicitação enviada com sucesso. Em breve entraremos em contato.");
+    const form = document.getElementById("orcamento");
+    if (form) form.scrollIntoView({ behavior: "smooth", block: "center" });
+    history.replaceState(null, "", window.location.pathname + "#orcamento");
+  }
+});
 </script>
 
 </body>

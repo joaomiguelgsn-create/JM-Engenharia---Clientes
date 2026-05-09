@@ -806,6 +806,59 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style>
+/* CTA contato refinado */
+.contact-intro-jm .contact-pill-jm{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  max-width:calc(100% - 24px);
+  padding:18px 30px;
+  border-radius:999px;
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(198,135,54,.16);
+  box-shadow:
+    0 18px 42px rgba(16,35,63,.08),
+    0 0 0 1px rgba(255,255,255,.6) inset;
+  color:#10233f;
+  font-weight:800;
+  font-size:clamp(1rem, 1.7vw, 1.18rem);
+  line-height:1.45;
+  animation:contactFloatJM 4.5s ease-in-out infinite;
+  letter-spacing:-0.01em;
+}
+.contact-intro-jm .contact-pill-jm b{
+  color:#c68736;
+  font-weight:900;
+}
+.contact-intro-jm .contact-icon-jm{
+  display:none !important;
+}
+.contact-intro-jm .contact-pill-jm::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  padding:1px;
+  background:linear-gradient(90deg, rgba(198,135,54,.0), rgba(198,135,54,.18), rgba(198,135,54,.0));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+@media (max-width:768px){
+  .contact-intro-jm .contact-pill-jm{
+    padding:16px 20px;
+    border-radius:26px;
+    text-align:center;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -923,7 +976,7 @@ button{cursor:pointer}
 
 
 <div class="contact-intro-jm" id="contato-intro">
-  <span class="contact-pill-jm"><span class="contact-icon-jm">💬</span><span><b>Prefere falar direto?</b> Entre em contato por um dos meios abaixo.</span></span>
+  <span class="contact-pill-jm"><span><b>Prefere falar direto?</b> Entre em contato por um dos meios abaixo.</span></span>
 </div>
 
 <div id="contato" class="contact-strip">

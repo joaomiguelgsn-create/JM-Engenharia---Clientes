@@ -871,6 +871,7 @@ function barraJM(percent) {
   return '<div class="bar"><i style="width:' + p + '%"></i></div><strong>' + p + '%</strong>';
 }
 
+
 function abrirPaginaClienteJM(b, st) {
   st = st || {};
   const nome = nomeClienteJM(b);
@@ -886,7 +887,6 @@ function abrirPaginaClienteJM(b, st) {
   const pref = (st.prefeitura || []).find(p => String(p.id || p.projectId || p.budgetId || '') === budgetId);
 
   const projectProgress = calcularProgressoTarefasJM(tasks, b);
-  const prefProgress = progressoPrefeituraJM(pref);
 
   const payments = Array.isArray(b.payments) ? b.payments : [];
   const total = b.negociado || b.valor || b.total || b.preco || 0;
@@ -894,12 +894,12 @@ function abrirPaginaClienteJM(b, st) {
   const paymentText = b.paymentCustom || b.paymentMethod || 'Conforme combinado';
   const nextDue = b.paymentDue || b.vencimento || '';
 
-  const contratoHtml = contracts.length
-    ? contracts.map(c => '<div class="miniRow"><span>Contrato criado</span><b>' + escJM(brDateJM(c.createdAt || c.data || c.date)) + '</b></div>').join('')
-    : '<p class="empty">Nenhum contrato vinculado ainda.</p>';
-
   const anexosContrato = attachments.filter(a => /contrato/i.test(String(a.name || a.tipo || '')));
   const anexosGerais = attachments.filter(a => !/contrato/i.test(String(a.name || a.tipo || '')));
+
+  const contratoHtml = contracts.length
+    ? contracts.map(c => '<div class="timelineItem"><span></span><div><b>Contrato criado</b><small>' + escJM(brDateJM(c.createdAt || c.data || c.date)) + '</small></div></div>').join('')
+    : '<p class="empty">Nenhum contrato vinculado ainda.</p>';
 
   const linksContrato = anexosContrato.length
     ? anexosContrato.map(a => '<a class="file" href="' + escJM(a.data || '#') + '" download="' + escJM(a.name || 'arquivo') + '">📄 ' + escJM(a.name || 'Contrato') + '</a>').join('')
@@ -910,12 +910,22 @@ function abrirPaginaClienteJM(b, st) {
     : '<p class="empty">Nenhum anexo disponível no momento.</p>';
 
   const pagamentosHtml = payments.length
-    ? payments.map(p => '<div class="miniRow"><span>' + escJM(p.desc || p.descricao || p.tipo || 'Pagamento') + '</span><b>' + escJM(moneyJM(p.value || p.valor || p.amount)) + (p.date || p.data || p.due ? ' • ' + escJM(brDateJM(p.date || p.data || p.due)) : '') + '</b></div>').join('')
+    ? payments.map(p => '<div class="paymentLine"><div><b>' + escJM(p.desc || p.descricao || p.tipo || 'Pagamento') + '</b><small>' + escJM(p.date || p.data || p.due ? brDateJM(p.date || p.data || p.due) : 'Sem data') + '</small></div><strong>' + escJM(moneyJM(p.value || p.valor || p.amount)) + '</strong></div>').join('')
     : '<p class="empty">Nenhuma parcela registrada. Forma: ' + escJM(paymentText) + '</p>';
 
   const prefSteps = pref && Array.isArray(pref.steps) && pref.steps.length
-    ? pref.steps.map(s => '<div class="miniRow"><span>' + escJM(s.name || s.etapa || s.status || 'Movimentação') + '</span><b>' + escJM(brDateJM(s.date || s.data || s.created)) + '</b></div>').join('')
+    ? pref.steps.map(s => '<div class="timelineItem"><span></span><div><b>' + escJM(s.name || s.etapa || s.status || 'Movimentação') + '</b><small>' + escJM(brDateJM(s.date || s.data || s.created)) + '</small></div></div>').join('')
     : '<p class="empty">Nenhuma movimentação registrada.</p>';
+
+  const ultimaPref = pref?.move ? brDateJM(pref.move) : (pref?.updatedAt ? brDateJM(pref.updatedAt) : 'Não informada');
+
+  const tarefasAbertasHtml = tasksOpen.length
+    ? tasksOpen.map(linhaTarefaJM).join('')
+    : '<p class="empty">Nenhuma tarefa em andamento.</p>';
+
+  const tarefasConcluidasHtml = tasksDone.length
+    ? tasksDone.map(linhaTarefaJM).join('')
+    : '<p class="empty">Nenhuma tarefa concluída ainda.</p>';
 
   const novaJanela = window.open('', '_blank');
   if (!novaJanela) {
@@ -932,101 +942,168 @@ function abrirPaginaClienteJM(b, st) {
     <title>Área do Cliente • JM Neto Engenharia</title>
     <style>
       *{box-sizing:border-box}
-      body{margin:0;font-family:Inter,Arial,sans-serif;background:#0b1220;color:#fff;padding:34px 20px}
-      .wrap{max-width:1180px;margin:auto}
-      .top{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:28px}
-      .tag{display:inline-flex;padding:8px 14px;border-radius:999px;background:#172033;border:1px solid rgba(255,255,255,.12);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
-      h1{margin:18px 0 10px;font-size:46px;letter-spacing:-.055em}
-      h2{margin:0 0 16px;font-size:25px;letter-spacing:-.035em}
-      .sub{color:#cbd5e1;font-size:18px;line-height:1.6;max-width:760px;margin:0}
-      .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}
-      .card,.section{background:#111c31;border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.20)}
+      :root{--bg:#07111f;--card:#101d33;--card2:#13243d;--line:rgba(255,255,255,.10);--text:#f8fafc;--muted:#9fb0c6;--gold:#d6a14a;--ok:#7cf2a6;--warn:#facc15}
+      body{margin:0;font-family:Inter,Arial,sans-serif;background:
+        radial-gradient(circle at 12% 10%,rgba(214,161,74,.20),transparent 28%),
+        radial-gradient(circle at 80% 0%,rgba(59,130,246,.16),transparent 30%),
+        linear-gradient(135deg,#07111f,#0d1b30 55%,#081222);
+        color:var(--text);min-height:100vh;padding:34px 20px}
+      .wrap{max-width:1220px;margin:auto}
+      .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(19,36,61,.96),rgba(9,20,36,.92));border:1px solid var(--line);border-radius:34px;padding:34px;box-shadow:0 28px 80px rgba(0,0,0,.30);animation:rise .45s ease both}
+      .hero:after{content:"";position:absolute;right:-80px;top:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(214,161,74,.22),transparent 65%);pointer-events:none}
+      .tag{display:inline-flex;padding:9px 15px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+      h1{margin:18px 0 10px;font-size:clamp(34px,5vw,56px);letter-spacing:-.06em}
+      h2{margin:0 0 16px;font-size:24px;letter-spacing:-.035em}
+      .sub{color:#cbd5e1;font-size:18px;line-height:1.65;max-width:780px;margin:0}
+      .dash{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:22px 0 0}
+      .card,.panel{background:rgba(16,29,51,.88);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 18px 48px rgba(0,0,0,.22);transition:transform .22s ease,border-color .22s ease,background .22s ease}
+      .card:hover,.panel:hover{transform:translateY(-3px);border-color:rgba(214,161,74,.38);background:rgba(19,36,61,.94)}
       .card small{display:block;color:#9fb8d8;text-transform:uppercase;font-size:11px;font-weight:900;margin-bottom:10px;letter-spacing:.08em}
-      .card b{font-size:19px;line-height:1.45}
-      .ok{color:#86efac} .warn{color:#facc15}
-      .sections{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+      .card b{font-size:18px;line-height:1.45}
+      .ok{color:var(--ok)} .warn{color:var(--warn)}
+      .bar{height:13px;background:#1d2b43;border-radius:999px;overflow:hidden;margin:12px 0 8px}
+      .bar i{display:block;height:100%;background:linear-gradient(90deg,#b67c36,#f3ca77);border-radius:999px;animation:grow .75s ease both}
+      .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 16px}
+      .tabBtn{border:1px solid var(--line);background:rgba(255,255,255,.07);color:#dbeafe;padding:13px 16px;border-radius:999px;font-weight:900;cursor:pointer;transition:.2s ease}
+      .tabBtn:hover{transform:translateY(-2px);background:rgba(255,255,255,.11)}
+      .tabBtn.active{background:linear-gradient(135deg,#b67c36,#e4b35e);color:#111827;border-color:transparent}
+      .tab{display:none;animation:fade .25s ease both}
+      .tab.active{display:grid;grid-template-columns:1fr 1fr;gap:16px}
       .wide{grid-column:1/-1}
-      .bar{height:12px;background:#1e293b;border-radius:999px;overflow:hidden;margin:12px 0 8px}
-      .bar i{display:block;height:100%;background:linear-gradient(90deg,#b67c36,#f0c06a);border-radius:999px}
-      strong{color:#f8fafc}
-      .task{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+      .task{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
       .task:last-child{border-bottom:0}
-      .task b{display:block}
-      .task span,.task small,.empty{display:block;color:#94a3b8;font-size:13px;margin-top:4px}
-      .task em{font-style:normal;color:#facc15;font-weight:900;font-size:13px}
-      .task.done em{color:#86efac}
-      .miniRow{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)}
-      .miniRow:last-child{border-bottom:0}
-      .miniRow span{color:#94a3b8}
-      .miniRow b{text-align:right}
-      .file{display:block;color:#fff;text-decoration:none;padding:12px 14px;border-radius:14px;background:#18243a;border:1px solid rgba(255,255,255,.08);margin:8px 0;font-weight:800}
-      @media(max-width:900px){.grid,.sections{grid-template-columns:1fr}.top{display:block}h1{font-size:36px}}
+      .task b{display:block}.task span,.task small,.empty{display:block;color:var(--muted);font-size:13px;margin-top:4px}.task em{font-style:normal;color:var(--warn);font-weight:900;font-size:13px}.task.done em{color:var(--ok)}
+      .timelineItem{display:grid;grid-template-columns:18px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+      .timelineItem:last-child{border-bottom:0}.timelineItem span{width:12px;height:12px;border-radius:50%;background:var(--gold);margin-top:5px;box-shadow:0 0 0 5px rgba(214,161,74,.12)}
+      .timelineItem small,.paymentLine small{display:block;color:var(--muted);margin-top:5px}
+      .paymentLine{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px 0;border-bottom:1px solid var(--line)}
+      .paymentLine:last-child{border-bottom:0}.paymentLine strong{color:#fff;text-align:right}
+      .file{display:block;color:#fff;text-decoration:none;padding:14px 15px;border-radius:16px;background:#17253d;border:1px solid var(--line);margin:9px 0;font-weight:900;transition:.2s ease}
+      .file:hover{transform:translateX(4px);border-color:rgba(214,161,74,.42)}
+      .miniGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.mini{background:#17253d;border:1px solid var(--line);border-radius:18px;padding:16px}.mini small{color:var(--muted);display:block;margin-bottom:7px;text-transform:uppercase;font-size:11px;font-weight:900}.mini b{font-size:17px}
+      @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+      @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+      @keyframes grow{from{width:0}to{}}
+      @media(max-width:980px){.dash,.tab.active{grid-template-columns:1fr 1fr}.hero{padding:25px}}
+      @media(max-width:680px){body{padding:18px 12px}.dash,.tab.active,.miniGrid{grid-template-columns:1fr}h1{font-size:36px}.tabs{position:sticky;top:8px;z-index:5}.tabBtn{flex:1}}
     </style>
   </head>
   <body>
     <div class="wrap">
-      <div class="top">
-        <div>
-          <span class="tag">JM Neto Engenharia</span>
-          <h1>Olá, ${escJM(primeiro)}.</h1>
-          <p class="sub">Bem-vindo à sua área do cliente. Aqui você acompanha contrato, tarefas, prefeitura, pagamentos e andamento geral do projeto.</p>
+      <section class="hero">
+        <span class="tag">JM Neto Engenharia • Portal do Cliente</span>
+        <h1>Olá, ${escJM(primeiro)}.</h1>
+        <p class="sub">Acompanhe o andamento do seu projeto, tarefas, contrato, arquivos, pagamentos e movimentações na prefeitura.</p>
+        <div class="dash">
+          ${cardJM('Status do projeto', '<span class="ok">' + escJM(statusProjetoJM(b)) + '</span>')}
+          ${cardJM('Projeto', escJM(projetosTextoJM(b)))}
+          ${cardJM('Área construída', escJM(areaTextoJM(b)))}
+          ${cardJM('Cidade', escJM(b.cidade || b.localidade || 'Não informada'))}
+          ${cardJM('Progresso do projeto', barraJM(projectProgress))}
+          ${cardJM('Última movimentação prefeitura', escJM(ultimaPref))}
+          ${cardJM('Próximo pagamento', escJM(nextDue ? brDateJM(nextDue) : 'Não informado'))}
+          ${cardJM('Valor/recebido', escJM(moneyJM(total)) + '<br><small>Recebido: ' + escJM(moneyJM(recebido)) + '</small>')}
         </div>
-      </div>
+      </section>
 
-      <div class="grid">
-        ${cardJM('Status do projeto', '<span class="ok">' + escJM(statusProjetoJM(b)) + '</span>')}
-        ${cardJM('Projeto', escJM(projetosTextoJM(b)))}
-        ${cardJM('Área aproximada', escJM(areaTextoJM(b)))}
-        ${cardJM('Cidade', escJM(b.cidade || b.localidade || 'Não informada'))}
-        ${cardJM('Progresso do projeto', barraJM(projectProgress))}
-        ${cardJM('Prefeitura', barraJM(prefProgress))}
-        ${cardJM('Próximo pagamento', escJM(nextDue ? brDateJM(nextDue) : 'Não informado'))}
-        ${cardJM('Valor/recebido', escJM(moneyJM(total)) + '<br><small>Recebido: ' + escJM(moneyJM(recebido)) + '</small>')}
-      </div>
+      <nav class="tabs">
+        <button class="tabBtn active" onclick="openTabJM(event,'visao')">Visão geral</button>
+        <button class="tabBtn" onclick="openTabJM(event,'tarefas')">Tarefas</button>
+        <button class="tabBtn" onclick="openTabJM(event,'prefeitura')">Prefeitura</button>
+        <button class="tabBtn" onclick="openTabJM(event,'pagamentos')">Pagamentos</button>
+        <button class="tabBtn" onclick="openTabJM(event,'arquivos')">Contrato e arquivos</button>
+      </nav>
 
-      <div class="sections">
-        <div class="section">
-          <h2>Contrato</h2>
-          ${contratoHtml}
-          ${linksContrato}
-        </div>
+      <main>
+        <section id="visao" class="tab active">
+          <div class="panel">
+            <h2>Resumo do projeto</h2>
+            <div class="miniGrid">
+              <div class="mini"><small>Cliente</small><b>${escJM(nome)}</b></div>
+              <div class="mini"><small>CPF/CNPJ</small><b>${escJM(cpfClienteJM(b) || 'Cadastrado')}</b></div>
+              <div class="mini"><small>Telefone</small><b>${escJM(b.telefone || 'Não informado')}</b></div>
+              <div class="mini"><small>Área construída</small><b>${escJM(areaTextoJM(b))}</b></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Progresso visual</h2>
+            <p class="empty">Andamento geral calculado pelas tarefas registradas no sistema.</p>
+            ${barraJM(projectProgress)}
+          </div>
+          <div class="panel wide">
+            <h2>Observações</h2>
+            <p class="empty">${escJM(b.obs || b.observacoes || b.observacao || b.mensagem || pref?.obs || 'Nenhuma observação registrada no momento.')}</p>
+          </div>
+        </section>
 
-        <div class="section">
-          <h2>Pagamentos</h2>
-          <div class="miniRow"><span>Forma</span><b>${escJM(paymentText)}</b></div>
-          <div class="miniRow"><span>Vencimento previsto</span><b>${escJM(nextDue ? brDateJM(nextDue) : 'Não informado')}</b></div>
-          ${pagamentosHtml}
-        </div>
+        <section id="tarefas" class="tab">
+          <div class="panel">
+            <h2>Tarefas em andamento</h2>
+            ${tarefasAbertasHtml}
+          </div>
+          <div class="panel">
+            <h2>Tarefas concluídas</h2>
+            ${tarefasConcluidasHtml}
+          </div>
+        </section>
 
-        <div class="section">
-          <h2>Tarefas em andamento</h2>
-          ${tasksOpen.length ? tasksOpen.map(linhaTarefaJM).join('') : '<p class="empty">Nenhuma tarefa em andamento.</p>'}
-        </div>
+        <section id="prefeitura" class="tab">
+          <div class="panel">
+            <h2>Prefeitura</h2>
+            <div class="miniGrid">
+              <div class="mini"><small>Status</small><b>${escJM(pref?.status || 'Não protocolado')}</b></div>
+              <div class="mini"><small>Protocolo</small><b>${escJM(pref?.protocol || 'Não informado')}</b></div>
+              <div class="mini"><small>Última movimentação</small><b>${escJM(ultimaPref)}</b></div>
+              <div class="mini"><small>Responsável</small><b>JM Neto Engenharia</b></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Histórico de movimentações</h2>
+            ${prefSteps}
+          </div>
+        </section>
 
-        <div class="section">
-          <h2>Tarefas concluídas</h2>
-          ${tasksDone.length ? tasksDone.map(linhaTarefaJM).join('') : '<p class="empty">Nenhuma tarefa concluída ainda.</p>'}
-        </div>
+        <section id="pagamentos" class="tab">
+          <div class="panel">
+            <h2>Resumo financeiro</h2>
+            <div class="miniGrid">
+              <div class="mini"><small>Forma</small><b>${escJM(paymentText)}</b></div>
+              <div class="mini"><small>Vencimento previsto</small><b>${escJM(nextDue ? brDateJM(nextDue) : 'Não informado')}</b></div>
+              <div class="mini"><small>Valor total</small><b>${escJM(moneyJM(total))}</b></div>
+              <div class="mini"><small>Recebido</small><b>${escJM(moneyJM(recebido))}</b></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Datas e parcelas</h2>
+            ${pagamentosHtml}
+          </div>
+        </section>
 
-        <div class="section">
-          <h2>Prefeitura</h2>
-          <div class="miniRow"><span>Status</span><b>${escJM(pref?.status || 'Não protocolado')}</b></div>
-          <div class="miniRow"><span>Protocolo</span><b>${escJM(pref?.protocol || 'Não informado')}</b></div>
-          <div class="miniRow"><span>Última movimentação</span><b>${escJM(pref?.move ? brDateJM(pref.move) : 'Não informado')}</b></div>
-          ${prefSteps}
-        </div>
-
-        <div class="section">
-          <h2>Anexos e arquivos</h2>
-          ${anexosHtml}
-        </div>
-
-        <div class="section wide">
-          <h2>Observações</h2>
-          <p class="empty">${escJM(b.obs || b.observacoes || b.observacao || b.mensagem || pref?.obs || 'Nenhuma observação registrada no momento.')}</p>
-        </div>
-      </div>
+        <section id="arquivos" class="tab">
+          <div class="panel">
+            <h2>Contrato</h2>
+            ${contratoHtml}
+            ${linksContrato}
+          </div>
+          <div class="panel">
+            <h2>Anexos e arquivos</h2>
+            ${anexosHtml}
+          </div>
+        </section>
+      </main>
     </div>
+
+    <script>
+      function openTabJM(event, id){
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
+      }
+      document.querySelectorAll('.card,.panel,.file,.tabBtn').forEach(el=>{
+        el.addEventListener('click',()=>{el.style.transform='scale(.985)';setTimeout(()=>el.style.transform='',120)})
+      });
+    </script>
   </body>
   </html>
   `);

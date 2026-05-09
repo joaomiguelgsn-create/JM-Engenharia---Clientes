@@ -859,6 +859,35 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style>
+/* status orçamento robusto */
+.form-submit-note.success{
+  display:block !important;
+  color:#14532d !important;
+  background:linear-gradient(135deg,#dcfce7,#bbf7d0) !important;
+  border:1px solid #86efac !important;
+  border-radius:18px !important;
+  padding:16px 18px !important;
+  box-shadow:0 16px 34px rgba(22,101,52,.16) !important;
+  animation:statusPopJM .35s ease both !important;
+}
+.form-submit-note.sending{
+  display:block !important;
+  color:#92400e !important;
+  background:#fff7ed !important;
+  border:1px solid #fed7aa !important;
+  border-radius:16px !important;
+  padding:13px 16px !important;
+  box-shadow:0 12px 28px rgba(146,64,14,.10) !important;
+  animation:statusPopJM .28s ease both !important;
+}
+@keyframes statusPopJM{
+  from{opacity:0;transform:translateY(8px) scale(.98)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+</style>
+
 </head>
 <body>
 
@@ -921,10 +950,11 @@ button{cursor:pointer}
       </div>
     </div>
 
-    <form class="quote-box" id="orcamento" target="formsubmit-frame" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" onsubmit="return enviarOrcamentoJM(event)">
+    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="formsubmit-frame" onsubmit="return enviarOrcamentoJM(event)">
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" id="formsubmit-next" value="">
       <input type="text" name="_honey" style="display:none">
       <div class="quote-head">
         <h2>📋 Solicite seu orçamento</h2>
@@ -1877,54 +1907,97 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 
+
 <iframe name="formsubmit-frame" id="formsubmit-frame" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;border:0;opacity:0;pointer-events:none;" aria-hidden="true"></iframe>
 <script>
 let envioOrcamentoIniciadoJM = false;
+let envioOrcamentoConfirmadoJM = false;
+let fallbackEnvioRealJM = null;
+
+function mostrarStatusOrcamentoJM(tipo, texto) {
+  const status = document.getElementById("orcamento-status");
+  if (!status) return;
+  status.className = "form-submit-note " + tipo;
+  status.textContent = texto;
+}
+
+function finalizarEnvioOrcamentoJM() {
+  if (!envioOrcamentoIniciadoJM) return;
+
+  envioOrcamentoConfirmadoJM = true;
+
+  if (fallbackEnvioRealJM) {
+    clearTimeout(fallbackEnvioRealJM);
+    fallbackEnvioRealJM = null;
+  }
+
+  const form = document.getElementById("orcamento");
+  mostrarStatusOrcamentoJM("success", "Solicitação enviada com sucesso. Em breve entraremos em contato.");
+
+  if (form) form.reset();
+
+  const button = form ? form.querySelector('button[type="submit"]') : null;
+  if (button) {
+    button.disabled = false;
+    button.innerHTML = button.dataset.originalText || "🚀 Enviar solicitação";
+  }
+
+  envioOrcamentoIniciadoJM = false;
+}
 
 function enviarOrcamentoJM(event) {
   const form = event.target;
-  const status = document.getElementById("orcamento-status");
   const button = form.querySelector('button[type="submit"]');
-
-  envioOrcamentoIniciadoJM = true;
 
   if (button) {
     button.dataset.originalText = button.innerHTML;
     button.innerHTML = "⏳ Enviando...";
+    button.disabled = true;
   }
 
-  if (status) {
-    status.className = "form-submit-note sending";
-    status.textContent = "Enviando sua solicitação...";
-  }
+  mostrarStatusOrcamentoJM("sending", "Enviando sua solicitação...");
+
+  envioOrcamentoIniciadoJM = true;
+  envioOrcamentoConfirmadoJM = false;
+
+  // Primeira tentativa: envio invisível pelo iframe, para não sair da página.
+  form.target = "formsubmit-frame";
+
+  // Fallback: em alguns celulares o iframe não conclui o POST corretamente.
+  // Se não houver confirmação do iframe, faz o envio real que já funciona no mobile.
+  if (fallbackEnvioRealJM) clearTimeout(fallbackEnvioRealJM);
+
+  fallbackEnvioRealJM = setTimeout(function () {
+    if (envioOrcamentoConfirmadoJM) return;
+
+    const next = document.getElementById("formsubmit-next");
+    if (next) {
+      next.value = window.location.origin + window.location.pathname + "?orcamento=enviado#orcamento";
+    }
+
+    form.removeAttribute("target");
+    form.submit();
+  }, 6000);
 
   return true;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
   const iframe = document.getElementById("formsubmit-frame");
-  const form = document.getElementById("orcamento");
-  const status = document.getElementById("orcamento-status");
 
-  if (!iframe) return;
+  if (iframe) {
+    iframe.addEventListener("load", function () {
+      finalizarEnvioOrcamentoJM();
+    });
+  }
 
-  iframe.addEventListener("load", function () {
-    if (!envioOrcamentoIniciadoJM) return;
-
-    if (status) {
-      status.className = "form-submit-note success";
-      status.textContent = "Solicitação enviada com sucesso. Em breve entraremos em contato.";
-    }
-
-    if (form) form.reset();
-
-    const button = form ? form.querySelector('button[type="submit"]') : null;
-    if (button) {
-      button.innerHTML = button.dataset.originalText || "🚀 Enviar solicitação";
-    }
-
-    envioOrcamentoIniciadoJM = false;
-  });
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("orcamento") === "enviado") {
+    mostrarStatusOrcamentoJM("success", "Solicitação enviada com sucesso. Em breve entraremos em contato.");
+    const form = document.getElementById("orcamento");
+    if (form) form.scrollIntoView({ behavior: "smooth", block: "center" });
+    history.replaceState(null, "", window.location.pathname + "#orcamento");
+  }
 });
 </script>
 

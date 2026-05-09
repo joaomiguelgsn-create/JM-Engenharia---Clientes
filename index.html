@@ -1521,7 +1521,8 @@ function abrirPaginaClienteJM(b, st) {
 
 
 function voltarSiteJM() {
-  window.location.href = window.location.origin + window.location.pathname + '#area-cliente';
+  const base = window.location.origin + window.location.pathname;
+  window.location.href = base + '?voltar=' + Date.now() + '#area-cliente';
 }
 
 function botaoVoltarPortalJM() {
@@ -1705,6 +1706,39 @@ function abrirProjetoSelecionadoJM(index) {
   abrirPaginaClienteJM(projeto, st);
 }
 
+function setClientePortalLoadingJM(loading, msg) {
+  const form = document.querySelector('.login-box');
+  const btn = form ? form.querySelector('button[type="submit"], button') : null;
+  let status = document.getElementById('cliente-login-status');
+
+  if (!status && form) {
+    status = document.createElement('p');
+    status.id = 'cliente-login-status';
+    status.style.cssText = 'margin:12px 0 0;color:#dbeafe;font-weight:800;text-align:center;';
+    form.appendChild(status);
+  }
+
+  if (status) {
+    status.textContent = msg || '';
+    status.style.display = msg ? 'block' : 'none';
+  }
+
+  if (btn) {
+    if (loading) {
+      btn.disabled = true;
+      btn.dataset.oldText = btn.innerHTML;
+      btn.innerHTML = 'Consultando...';
+      btn.style.opacity = '.82';
+      btn.style.cursor = 'wait';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = btn.dataset.oldText || 'Entrar no portal';
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+    }
+  }
+}
+
 async function consultarClienteJM(event) {
   event.preventDefault();
 
@@ -1717,6 +1751,8 @@ async function consultarClienteJM(event) {
     alert('Informe o primeiro nome e um CPF válido para acessar a área do cliente.');
     return;
   }
+
+  setClientePortalLoadingJM(true, 'Consultando seu cadastro...');
 
   try {
     if (!window.supabase) throw new Error('Biblioteca Supabase não carregada.');
@@ -1754,9 +1790,12 @@ async function consultarClienteJM(event) {
     }
 
     if (!encontrados.length) {
+      setClientePortalLoadingJM(false, '');
       alert('Cadastro não encontrado. A nuvem respondeu, mas não localizei esse primeiro nome junto com esse CPF.');
       return;
     }
+
+    setClientePortalLoadingJM(false, '');
 
     if (encontrados.length === 1) {
       abrirPaginaClienteJM(encontrados[0], estadoEncontrado || {});
@@ -1766,6 +1805,7 @@ async function consultarClienteJM(event) {
 
   } catch (err) {
     console.error(err);
+    setClientePortalLoadingJM(false, '');
     alert('Não foi possível acessar a área do cliente agora. Verifique a permissão de leitura da tabela jm_state no Supabase.');
   }
 }
@@ -1842,6 +1882,34 @@ async function enviarOrcamentoJM(event) {
 
   return false;
 }
+</script>
+
+
+<script>
+function focarAreaClienteJM() {
+  const sec = document.getElementById('area-cliente');
+  if (sec) {
+    sec.scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(function(){
+      const input = document.getElementById('cliente-nome');
+      if (input) input.focus({preventScroll:true});
+    }, 450);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('a[href="#area-cliente"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      focarAreaClienteJM();
+      history.replaceState(null, '', '#area-cliente');
+    });
+  });
+
+  if (window.location.hash === '#area-cliente') {
+    setTimeout(focarAreaClienteJM, 350);
+  }
+});
 </script>
 
 </body>

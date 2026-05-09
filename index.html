@@ -848,6 +848,10 @@ function projetosTextoJM(b) {
   return 'Projeto técnico';
 }
 
+function enderecoProjetoJM(b) {
+  return b.endereco || b.enderecoObra || b.obra || b.local || b.cidade || b.localidade || 'Endereço não informado';
+}
+
 function areaTextoJM(b) {
   if (b.area) return b.area + ' m²';
   if (b.metragem) return b.metragem + ' m²';
@@ -1055,13 +1059,7 @@ function abrirPaginaClienteJM(b, st) {
     ? tasksDone.map(linhaTarefaJM).join('')
     : '<p class="empty">Nenhuma tarefa concluída ainda.</p>';
 
-  const novaJanela = window.open('', '_blank');
-  if (!novaJanela) {
-    alert('O navegador bloqueou a abertura da área do cliente. Permita pop-ups para este site.');
-    return;
-  }
-
-  novaJanela.document.write(`
+  documentoPortalClienteJM(`
   <!DOCTYPE html>
   <html lang="pt-BR">
   <head>
@@ -1300,6 +1298,7 @@ function abrirPaginaClienteJM(b, st) {
           ${cardJM('Projeto', escJM(projetosTextoJM(b)))}
           ${cardJM('Área construída', escJM(areaTextoJM(b)))}
           ${cardJM('Cidade', escJM(b.cidade || b.localidade || 'Não informada'))}
+          ${cardJM('Endereço', escJM(enderecoProjetoJM(b)))}
           ${cardJM('Progresso do projeto', barraJM(projectProgress))}
           ${cardJM('Última movimentação prefeitura', escJM(ultimaPref))}
           ${(String(statusProjetoJM(b)).toLowerCase().includes('quitado') || String(statusProjetoJM(b)).toLowerCase().includes('concluído') || String(statusProjetoJM(b)).toLowerCase().includes('concluido')) ? '' : cardJM('Próximo pagamento', escJM(nextDue ? brDateJM(nextDue) : 'Não informado'))}
@@ -1409,21 +1408,21 @@ function abrirPaginaClienteJM(b, st) {
   </body>
   </html>
   `);
-  novaJanela.document.close();
 }
 
+
+
+function documentoPortalClienteJM(conteudo) {
+  document.open();
+  document.write(conteudo);
+  document.close();
+}
 
 function abrirListaProjetosClienteJM(projetos, st) {
   window.__JM_PORTAL_PROJETOS_CLIENTE = projetos;
   window.__JM_PORTAL_ESTADO_CLIENTE = st || {};
 
   const primeiro = String(nomeClienteJM(projetos[0] || 'Cliente')).split(' ')[0] || 'Cliente';
-  const novaJanela = window.open('', '_blank');
-
-  if (!novaJanela) {
-    alert('O navegador bloqueou a abertura da área do cliente. Permita pop-ups para este site.');
-    return;
-  }
 
   const cards = projetos.map((p, i) => {
     const status = statusProjetoJM(p);
@@ -1439,18 +1438,22 @@ function abrirListaProjetosClienteJM(projetos, st) {
           <b>${escJM(status)}</b>
         </div>
         <h2>${escJM(projetosTextoJM(p))}</h2>
+        <div class="addressBox">
+          <small>Endereço / identificação</small>
+          <strong>${escJM(enderecoProjetoJM(p))}</strong>
+        </div>
         <div class="meta">
           <div><small>Área construída</small><strong>${escJM(areaTextoJM(p))}</strong></div>
           <div><small>Cidade</small><strong>${escJM(p.cidade || p.localidade || 'Não informada')}</strong></div>
           <div><small>Valor total</small><strong>${escJM(moneyJM(p.negociado || p.valor || p.total || p.preco || 0))}</strong></div>
           <div><small>Progresso</small><strong>${progresso}%</strong></div>
         </div>
-        <button onclick="window.opener.abrirProjetoSelecionadoJM(${i}); window.close();">Abrir este projeto</button>
+        <button onclick="abrirProjetoSelecionadoJM(${i})">Abrir este projeto</button>
       </article>
     `;
   }).join('');
 
-  novaJanela.document.write(`
+  documentoPortalClienteJM(`
   <!DOCTYPE html>
   <html lang="pt-BR">
   <head>
@@ -1471,7 +1474,7 @@ function abrirListaProjetosClienteJM(projetos, st) {
       }
       .wrap{max-width:1120px;margin:auto}
       .hero{
-        background:rgba(255,255,255,.88);
+        background:rgba(255,255,255,.90);
         border:1px solid rgba(16,35,63,.10);
         border-radius:32px;
         padding:30px;
@@ -1492,9 +1495,9 @@ function abrirListaProjetosClienteJM(projetos, st) {
       }
       h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.06em;margin:16px 0 8px}
       p{color:#475569;font-size:17px;line-height:1.6;margin:0}
-      .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+      .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
       .projectCard{
-        background:rgba(255,255,255,.92);
+        background:rgba(255,255,255,.94);
         border:1px solid rgba(16,35,63,.10);
         border-radius:26px;
         padding:22px;
@@ -1505,7 +1508,10 @@ function abrirListaProjetosClienteJM(projetos, st) {
       .topline{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
       .topline span{font-size:12px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
       .topline b{color:#15803d;background:#dcfce7;border:1px solid #bbf7d0;border-radius:999px;padding:6px 10px;font-size:12px}
-      .projectCard h2{font-size:23px;letter-spacing:-.04em;margin:0 0 16px}
+      .projectCard h2{font-size:23px;letter-spacing:-.04em;margin:0 0 14px}
+      .addressBox{background:#fff7ed;border:1px solid #f0d7b6;border-radius:18px;padding:13px;margin-bottom:14px}
+      .addressBox small{display:block;color:#7c4d12;font-size:11px;text-transform:uppercase;font-weight:900;margin-bottom:5px}
+      .addressBox strong{font-size:15px}
       .meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
       .meta div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:12px}
       .meta small{display:block;color:#64748b;font-size:11px;text-transform:uppercase;font-weight:900;margin-bottom:5px}
@@ -1519,15 +1525,54 @@ function abrirListaProjetosClienteJM(projetos, st) {
       <section class="hero">
         <span class="tag">JM Neto Engenharia • Área do Cliente</span>
         <h1>Olá, ${escJM(primeiro)}.</h1>
-        <p>Encontramos mais de um projeto vinculado ao seu cadastro. Escolha qual projeto deseja acompanhar.</p>
+        <p>Encontramos mais de um projeto vinculado ao seu cadastro. Escolha pelo endereço ou identificação da obra.</p>
       </section>
       <section class="grid">${cards}</section>
     </div>
+
+    <script>
+      window.__JM_PORTAL_PROJETOS_CLIENTE = ${JSON.stringify(projetos).replace(/</g,'\\u003c')};
+      window.__JM_PORTAL_ESTADO_CLIENTE = ${JSON.stringify(st || {}).replace(/</g,'\\u003c')};
+
+      ${String(limparTextoJM)}
+      ${String(somenteNumerosJM)}
+      ${String(primeiroNomeJM)}
+      ${String(escJM)}
+      ${String(brDateJM)}
+      ${String(moneyJM)}
+      ${String(nomeClienteJM)}
+      ${String(cpfClienteJM)}
+      ${String(statusProjetoJM)}
+      ${String(projetosTextoJM)}
+      ${String(enderecoProjetoJM)}
+      ${String(areaTextoJM)}
+      ${String(calcularProgressoTarefasJM)}
+      ${String(progressoPrefeituraJM)}
+      ${String(linhaTarefaJM)}
+      ${String(cardJM)}
+      ${String(barraJM)}
+      ${String(contratoExatoSalvoJM)}
+      ${String(contratoCriadoJM)}
+      ${String(contratoDataJM)}
+      ${String(gerarContratoPortalJM)}
+      ${String(abrirPaginaClienteJM)}
+
+      function abrirProjetoSelecionadoJM(index) {
+        const projetos = window.__JM_PORTAL_PROJETOS_CLIENTE || [];
+        const st = window.__JM_PORTAL_ESTADO_CLIENTE || {};
+        const projeto = projetos[index];
+
+        if (!projeto) {
+          alert('Não foi possível abrir este projeto.');
+          return;
+        }
+
+        abrirPaginaClienteJM(projeto, st);
+      }
+    <\/script>
   </body>
   </html>
   `);
-
-  novaJanela.document.close();
 }
 
 function abrirProjetoSelecionadoJM(index) {

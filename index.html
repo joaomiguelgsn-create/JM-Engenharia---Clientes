@@ -907,14 +907,17 @@ function barraJM(percent) {
 
 function contratoExatoSalvoJM(b, contracts) {
   const budgetId = String(b.id || b.projectId || '');
+
   const fromContracts = (contracts || []).find(c =>
-    String(c.budgetId || c.projectId || '') === budgetId && (c.html || c.contractHtml)
+    String(c.budgetId || c.projectId || '') === budgetId &&
+    (c.html || c.contractHtml || c.exactHtml || c.portalContractHtml)
   );
-  if (fromContracts) return fromContracts.html || fromContracts.contractHtml || '';
 
-  if (b.html || b.contractHtml) return b.html || b.contractHtml;
+  if (fromContracts) {
+    return fromContracts.html || fromContracts.contractHtml || fromContracts.exactHtml || fromContracts.portalContractHtml || '';
+  }
 
-  return '';
+  return b.html || b.contractHtml || b.exactHtml || b.exactContractHtml || b.portalContractHtml || '';
 }
 
 function contratoCriadoJM(b, contracts) {

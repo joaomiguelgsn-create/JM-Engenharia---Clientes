@@ -536,34 +536,6 @@ button{cursor:pointer}
 }
 </style>
 <style>
-.form-submit-note{
-  margin:12px 0 0;
-  font-size:14px;
-  line-height:1.45;
-  text-align:center;
-  font-weight:800;
-}
-.form-submit-note:empty{display:none}
-.form-submit-note.sending{display:block;color:#92400e}
-.form-submit-note.success{
-  display:block;
-  color:#166534;
-  background:#dcfce7;
-  border:1px solid #86efac;
-  border-radius:14px;
-  padding:12px 14px;
-}
-.form-submit-note.error{
-  display:block;
-  color:#7f1d1d;
-  background:#fee2e2;
-  border:1px solid #fecaca;
-  border-radius:14px;
-  padding:12px 14px;
-}
-</style>
-
-<style>
 .process-section{
   width:min(1180px, calc(100% - 48px));
   margin:46px auto 24px;
@@ -688,10 +660,11 @@ button{cursor:pointer}
       </div>
     </div>
 
-    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="formsubmit-frame" onsubmit="return enviarOrcamentoJM(event)">
+    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" onsubmit="return enviarOrcamentoJM(event)">
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" id="formsubmit-next" value="">
       <input type="text" name="_honey" style="display:none">
       <div class="quote-head">
         <h2>📋 Solicite seu orçamento</h2>
@@ -1906,80 +1879,45 @@ async function consultarClienteJM(event) {
 }
 </script>
 
-<iframe name="formsubmit-frame" id="formsubmit-frame" src="about:blank" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;border:0;opacity:0;pointer-events:none;" title="Envio do formulário"></iframe>
 <script>
-let envioOrcamentoTimerJM = null;
-let envioOrcamentoIniciadoJM = false;
-
-function finalizarEnvioOrcamentoJM() {
-  if (!envioOrcamentoIniciadoJM) return;
-
-  const form = document.getElementById('orcamento');
-  const status = document.getElementById('orcamento-status');
-  const button = form ? form.querySelector('button[type="submit"]') : null;
-
-  if (status) {
-    status.className = 'form-submit-note success';
-    status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
-  }
-
-  if (button) {
-    button.disabled = false;
-    button.innerHTML = button.dataset.originalText || '🚀 Enviar solicitação';
-  }
-
-  // O reset fica depois do envio, para não apagar os dados antes do celular concluir o POST.
-  setTimeout(function () {
-    if (form) form.reset();
-  }, 800);
-
-  envioOrcamentoIniciadoJM = false;
-  if (envioOrcamentoTimerJM) {
-    clearTimeout(envioOrcamentoTimerJM);
-    envioOrcamentoTimerJM = null;
-  }
-}
-
 function enviarOrcamentoJM(event) {
   const form = event.target;
-  const status = document.getElementById('orcamento-status');
+  const status = document.getElementById("orcamento-status");
   const button = form.querySelector('button[type="submit"]');
+  const next = document.getElementById("formsubmit-next");
 
-  envioOrcamentoIniciadoJM = true;
+  if (next) {
+    const base = window.location.origin + window.location.pathname;
+    next.value = base + "?orcamento=enviado#orcamento";
+  }
 
   if (button) {
     button.dataset.originalText = button.innerHTML;
-    // Importante: no celular, desabilitar o botão dentro do submit pode cancelar o envio.
-    // Por isso só mudamos o texto agora e desabilitamos depois que o navegador já iniciou o POST.
-    button.innerHTML = '⏳ Enviando...';
-    setTimeout(function(){ button.disabled = true; }, 80);
+    button.innerHTML = "⏳ Enviando...";
   }
 
   if (status) {
-    status.className = 'form-submit-note sending';
-    status.textContent = 'Enviando sua solicitação...';
+    status.className = "form-submit-note sending";
+    status.textContent = "Enviando sua solicitação...";
   }
-
-  if (envioOrcamentoTimerJM) clearTimeout(envioOrcamentoTimerJM);
-
-  // O iframe às vezes não dispara load no mobile, então liberamos visualmente depois de alguns segundos.
-  // O envio real já foi iniciado pelo submit normal do navegador.
-  envioOrcamentoTimerJM = setTimeout(finalizarEnvioOrcamentoJM, 4500);
 
   return true;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  const frame = document.getElementById('formsubmit-frame');
-  if (!frame) return;
-
-  frame.addEventListener('load', function () {
-    if (!envioOrcamentoIniciadoJM) return;
-    setTimeout(finalizarEnvioOrcamentoJM, 1200);
-  });
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("orcamento") === "enviado") {
+    const status = document.getElementById("orcamento-status");
+    const form = document.getElementById("orcamento");
+    if (status) {
+      status.className = "form-submit-note success";
+      status.textContent = "Solicitação enviada com sucesso. Em breve entraremos em contato.";
+    }
+    if (form) form.scrollIntoView({ behavior: "smooth", block: "center" });
+    history.replaceState(null, "", window.location.pathname + "#orcamento");
+  }
 });
 </script>
-
 <script>
 function focarAreaClienteJM() {
   const sec = document.getElementById('area-cliente');

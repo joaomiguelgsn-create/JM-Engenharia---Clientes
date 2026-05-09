@@ -559,7 +559,7 @@ button{cursor:pointer}
   </nav>
 </header>
 
-<section class="hero">\n        ${botaoVoltarPortalJM()}
+<section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
       
@@ -1368,6 +1368,20 @@ function abrirPaginaClienteJM(b, st) {
       @media print{body>*:not(.contractModal){display:none!important}.contractModal{display:block!important;position:static!important;background:#fff!important;padding:0!important}.contractBox{box-shadow:none!important;border-radius:0!important}.contractActions{display:none!important}}
 
       .miniGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.mini{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:16px}.mini small{color:var(--muted);display:block;margin-bottom:7px;text-transform:uppercase;font-size:11px;font-weight:900}.mini b{font-size:17px;color:#10233f}
+      .backBtn{
+        width:auto!important;
+        margin:0 0 16px!important;
+        border:1px solid #e2e8f0!important;
+        background:#fff!important;
+        color:#10233f!important;
+        border-radius:999px!important;
+        padding:10px 14px!important;
+        font-weight:900!important;
+        cursor:pointer!important;
+        box-shadow:0 10px 24px rgba(16,35,63,.08)!important;
+        transition:.2s ease!important;
+      }
+      .backBtn:hover{transform:translateY(-2px)}
       @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
       @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
       @keyframes grow{from{width:0}to{}}
@@ -1377,6 +1391,7 @@ function abrirPaginaClienteJM(b, st) {
   </head>
   <body>
     <div class="wrap">
+      ${botaoVoltarPortalJM()}
       <section class="hero">
         
 <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
@@ -1623,6 +1638,7 @@ function abrirListaProjetosClienteJM(projetos, st) {
   </head>
   <body>
     <div class="wrap">
+      ${botaoVoltarPortalJM()}
       <section class="hero">
         <span class="tag">JM Neto Engenharia • Área do Cliente</span>
         <h1>Olá, ${escJM(primeiro)}.</h1>

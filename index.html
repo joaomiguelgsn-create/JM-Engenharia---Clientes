@@ -682,6 +682,166 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style>
+/* Ajustes finais JM: primeira dobra mais organizada, logo com respiro e contato centralizado */
+.nav a[href="#contato"],
+a[href="#contato"]{
+  text-align:center;
+}
+
+.hero{
+  align-items:center;
+}
+
+.hero .wrap,
+.hero-wrap,
+.hero-content{
+  position:relative;
+}
+
+.hero-logo-showcase{
+  margin-top:18px;
+  margin-bottom:24px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding-left:0;
+}
+
+.hero-logo-image{
+  width:clamp(230px, 22vw, 340px) !important;
+  max-width:100%;
+  display:block;
+  position:relative;
+  z-index:1;
+}
+
+.hero-copy,
+.hero-text,
+.hero-left{
+  padding-top:22px;
+}
+
+.hero-actions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+  margin-top:28px;
+}
+
+.hero .quick-points,
+.hero-stats,
+.trust-row{
+  margin-top:34px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:26px;
+  flex-wrap:wrap;
+}
+
+.quote-box{
+  align-self:center;
+  margin-top:18px;
+}
+
+.info-cards{
+  margin-top:44px !important;
+}
+
+.contact-intro-jm{
+  margin-top:44px;
+}
+
+.contact-strip{
+  scroll-margin-top:190px;
+  justify-content:center;
+  text-align:center;
+}
+
+.contact-strip .contact-item{
+  justify-content:center;
+  text-align:center;
+}
+
+@media (min-width: 980px){
+  .hero{
+    min-height:calc(100vh - 80px);
+  }
+
+  .hero .wrap,
+  .hero-grid,
+  .hero-content{
+    display:grid;
+    grid-template-columns:minmax(420px, .95fr) minmax(430px, 1.05fr);
+    gap:clamp(40px, 6vw, 86px);
+    align-items:center;
+  }
+
+  .hero-logo-showcase{
+    justify-content:flex-start;
+  }
+
+  .quote-box{
+    justify-self:center;
+    width:min(100%, 620px);
+  }
+}
+
+@media (max-width: 979px){
+  .hero-logo-showcase{
+    justify-content:center;
+    margin-top:10px;
+    margin-bottom:22px;
+  }
+
+  .hero-logo-image{
+    width:clamp(190px, 58vw, 270px) !important;
+  }
+
+  .hero-actions{
+    justify-content:center;
+  }
+
+  .hero .quick-points,
+  .hero-stats,
+  .trust-row{
+    justify-content:center;
+    text-align:center;
+  }
+
+  .quote-box{
+    margin-inline:auto;
+  }
+}
+
+@media (max-width: 768px){
+  .hero{
+    padding-top:128px;
+  }
+
+  .hero-logo-image{
+    width:clamp(176px, 64vw, 250px) !important;
+  }
+
+  .brand .logo-box img{
+    width:82px !important;
+  }
+
+  header,
+  .header,
+  .nav-wrap{
+    min-height:auto;
+  }
+
+  .contact-strip{
+    scroll-margin-top:130px;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -717,7 +877,7 @@ button{cursor:pointer}
     <a href="#">Início</a>
     <a href="#servicos">Serviços</a>
     <a href="#area-cliente">Área do Cliente</a>
-    <a href="#contato" class="primary">Fale conosco</a>
+    <a href="#contato" class="primary">Entre em contato</a>
   </nav>
 </header>
 
@@ -799,7 +959,7 @@ button{cursor:pointer}
 
 
 <div class="contact-intro-jm" id="contato-intro">
-  <strong>Ou, se preferir, entre em contato conosco</strong> por um dos meios abaixo.
+  <strong>Ou, se preferir, entre em contato</strong> por um dos meios abaixo.
 </div>
 
 <div id="contato" class="contact-strip">

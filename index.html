@@ -541,7 +541,7 @@ button{cursor:pointer}
       <h1>Soluções de <span>engenharia</span> com qualidade e confiança</h1>
       <p>Projetos completos e personalizados para transformar ideias em realidade.</p>
       <div class="actions">
-        <button class="btn primary" type="button" onclick="abrirOrcamento(event)">📄 Solicite um orçamento</button>
+        <button class="btn primary" type="button" onclick="abrirOrcamento(event)">📄 Abrir contrato • Solicite um orçamento</button>
         <a class="btn" href="#area-cliente">🏙️ Acompanhe seu projeto</a>
       </div>
       <div class="stats">
@@ -555,6 +555,7 @@ button{cursor:pointer}
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" value="https://jm-engenharia-clientes.vercel.app/">
       <input type="hidden" name="_honey" value="">
       <div class="quote-head">
         <h2>📋 Solicite seu orçamento</h2>
@@ -932,7 +933,7 @@ function abrirPaginaClienteJM(b, st) {
     : '<p class="empty">Nenhum contrato vinculado ainda.</p>';
 
   const linksContrato = anexosContrato.length
-    ? anexosContrato.map(a => '<a class="file" href="' + escJM(a.data || '#') + '" download="' + escJM(a.name || 'arquivo') + '">📄 ' + escJM(a.name || 'Contrato') + '</a>').join('')
+    ? anexosContrato.map(a => '<a class="file" href="' + escJM(a.data || '#') + '" download="' + escJM(a.name || 'arquivo') + '">📄 Abrir contrato • ' + escJM(a.name || 'Contrato') + '</a>').join('')
     : '';
 
   const anexosHtml = anexosGerais.length
@@ -976,7 +977,7 @@ function abrirPaginaClienteJM(b, st) {
       body{margin:0;font-family:Inter,Arial,sans-serif;background:
         radial-gradient(circle at 12% 10%,rgba(214,161,74,.20),transparent 28%),
         radial-gradient(circle at 80% 0%,rgba(59,130,246,.16),transparent 30%),
-        linear-gradient(135deg,#07111f,#0d1b30 55%,#081222);
+        linear-gradient(135deg,#f8fafc,#eef4ff 55%,#fff8ef);
         color:var(--text);min-height:100vh;padding:34px 20px}
       .wrap{max-width:1220px;margin:auto}
       .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(248,250,252,.92));border:1px solid var(--line);border-radius:34px;padding:34px;box-shadow:0 28px 80px rgba(16,35,63,.12);animation:rise .45s ease both}
@@ -986,7 +987,7 @@ function abrirPaginaClienteJM(b, st) {
       h2{margin:0 0 16px;font-size:24px;letter-spacing:-.035em}
       .sub{color:#475569;font-size:18px;line-height:1.65;max-width:780px;margin:0}
       .dash{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:22px 0 0}
-      .card,.panel{background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 18px 48px rgba(16,35,63,.10);backdrop-filter:blur(10px);transition:transform .22s ease,border-color .22s ease,background .22s ease}
+      .card,.panel{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 18px 48px rgba(16,35,63,.10);backdrop-filter:blur(10px);transition:transform .22s ease,border-color .22s ease,background .22s ease}
       .card:hover,.panel:hover{transform:translateY(-3px);border-color:rgba(182,124,54,.38);background:#ffffff}
       .card small{display:block;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;margin-bottom:10px;letter-spacing:.08em}
       .card b{font-size:18px;line-height:1.45;color:#10233f}
@@ -1021,7 +1022,12 @@ function abrirPaginaClienteJM(b, st) {
   <body>
     <div class="wrap">
       <section class="hero">
-        <span class="tag">JM Neto Engenharia • Portal do Cliente</span>
+        
+<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+  <img src="https://i.imgur.com/6NfmQ6I.png" alt="JM Neto Engenharia" style="width:72px;height:72px;object-fit:contain;border-radius:20px;background:#fff;padding:8px;box-shadow:0 12px 30px rgba(16,35,63,.10)">
+  <span class="tag">JM Neto Engenharia • Portal do Cliente</span>
+</div>
+
         <h1>Olá, ${escJM(primeiro)}.</h1>
         <p class="sub">Acompanhe o andamento do seu projeto, tarefas, contrato, arquivos, pagamentos e movimentações na prefeitura.</p>
         <div class="dash">
@@ -1031,8 +1037,8 @@ function abrirPaginaClienteJM(b, st) {
           ${cardJM('Cidade', escJM(b.cidade || b.localidade || 'Não informada'))}
           ${cardJM('Progresso do projeto', barraJM(projectProgress))}
           ${cardJM('Última movimentação prefeitura', escJM(ultimaPref))}
-          ${cardJM('Próximo pagamento', escJM(nextDue ? brDateJM(nextDue) : 'Não informado'))}
-          ${cardJM('Valor/recebido', escJM(moneyJM(total)) + '<br><small>Recebido: ' + escJM(moneyJM(recebido)) + '</small>')}
+          ${(String(statusProjetoJM(b)).toLowerCase().includes('quitado') || String(statusProjetoJM(b)).toLowerCase().includes('concluído') || String(statusProjetoJM(b)).toLowerCase().includes('concluido')) ? '' : cardJM('Próximo pagamento', escJM(nextDue ? brDateJM(nextDue) : 'Não informado'))}
+          ${cardJM('Valor pago', escJM(moneyJM(total)) + '<br><small>Pago: ' + escJM(moneyJM(recebido)) + '</small>')}
         </div>
       </section>
 
@@ -1104,7 +1110,7 @@ function abrirPaginaClienteJM(b, st) {
             </div>
           </div>
           <div class="panel">
-            <h2>Datas e parcelas</h2>
+            <h2>Pagamentos realizados</h2><p class="empty">Abaixo estão as parcelas e datas registradas no sistema.</p>
             ${pagamentosHtml}
           </div>
         </section>

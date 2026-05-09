@@ -822,20 +822,54 @@ function brDateJM(v) {
   return String(v);
 }
 
-function valorTotalProjetoJM(b) {
-  const direto = b.negociado ?? b.valor ?? b.total ?? b.preco ?? b.final ?? b.valorTotal ?? b.totalGeral ?? b.valorFinal;
-  if (Number(direto || 0)) return Number(direto || 0);
+const JM_PRECOS_PROJETOS = {
+  'Arquitetônico': [7, 10, 16],
+  'Estrutural': [8, 14, 22],
+  'Elétrico': [4, 7, 12],
+  'Hidrossanitário': [4, 7, 12],
+  'Regularização': [5, 9, 14],
+  'Aprovação na Prefeitura': [3, 6, 10]
+};
 
-  if (Array.isArray(b.payments) && b.payments.length) {
-    return b.payments.reduce((s, p) => s + Number(p.value || p.valor || p.amount || 0), 0);
+function calcularValorEstimadoProjetoJM(b) {
+  const area = Number(b.area || b.metragem || b.metragem_aproximada || 0);
+  const projetos = Array.isArray(b.projetos) && b.projetos.length ? b.projetos : ['Arquitetônico'];
+
+  if (!area) return 0;
+
+  return projetos.reduce((s, p) => {
+    const tabela = JM_PRECOS_PROJETOS[p] || JM_PRECOS_PROJETOS['Arquitetônico'];
+    return s + area * Number(tabela[1] || 0);
+  }, 0);
+}
+
+function valorTotalProjetoJM(b) {
+  const campos = [
+    b.negociado, b.valor, b.total, b.preco, b.final, b.valorTotal,
+    b.totalGeral, b.valorFinal, b.contractValue, b.orcamentoValor,
+    b.precoFinal, b.finalValue
+  ];
+
+  for (const v of campos) {
+    const n = Number(v || 0);
+    if (n > 0) return n;
   }
+
+  if (b.calc && typeof b.calc === 'object') {
+    const n = Number(b.calc.final || b.calc.total || b.calc.valor || 0);
+    if (n > 0) return n;
+  }
+
+  const estimado = calcularValorEstimadoProjetoJM(b);
+  if (estimado > 0) return estimado;
 
   return 0;
 }
 
 function valorPagoProjetoJM(b) {
   const direto = b.received ?? b.recebido ?? b.valorPago ?? b.pago ?? b.totalPago;
-  if (Number(direto || 0)) return Number(direto || 0);
+
+  if (Number(direto || 0) > 0) return Number(direto || 0);
 
   if (Array.isArray(b.payments) && b.payments.length) {
     return b.payments

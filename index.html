@@ -916,102 +916,132 @@ function contratoDataJM(b, contracts) {
 }
 
 
+
 function gerarContratoPortalJM(b, contracts) {
   const dataContrato = contratoDataJM(b, contracts);
   const cliente = nomeClienteJM(b);
-  const cpf = cpfClienteJM(b) || 'Não informado';
-  const telefone = b.telefone || 'Não informado';
-  const email = b.email || 'Não informado';
-  const cidade = b.cidade || b.localidade || 'Não informada';
-  const obra = b.enderecoObra || b.obra || b.endereco || cidade;
+  const cpf = cpfClienteJM(b) || '____________________________';
+  const telefone = b.telefone || '____________________________';
+  const email = b.email || '____________________________';
+  const cidade = b.cidade || 'Luís Eduardo Magalhães/BA';
+  const endereco = b.endereco || b.enderecoObra || b.obra || '____________________________';
   const servicos = projetosTextoJM(b);
-  const area = areaTextoJM(b);
-  const valor = moneyJM(b.negociado || b.valor || b.total || b.preco || 0);
-  const forma = b.paymentCustom || b.paymentMethod || 'Conforme combinado entre as partes';
-  const prazo = b.prazo || b.deadline || b.prazoEstimado || 'Conforme cronograma técnico acordado';
-  const data = dataContrato ? brDateJM(dataContrato) : brDateJM(new Date().toISOString().slice(0,10));
+  const prazo = b.entrega ? brDateJM(b.entrega) : (b.prazo || b.deadline || b.prazoEstimado || 'A combinar');
+  const valorBruto = b.negociado || b.valor || b.total || b.preco || b.final || 0;
+  const valor = moneyJM(valorBruto);
+  const entrada = moneyJM(b.entrada || b.downPayment || 0);
+  const forma = b.paymentDue
+    ? 'Entrada sugerida de ' + entrada + ' e saldo conforme etapas, com vencimento previsto para ' + brDateJM(b.paymentDue) + '.'
+    : (b.paymentCustom || b.paymentMethod || 'À vista, parcelado ou por etapas, conforme combinado entre as partes.');
+  const data = dataContrato ? brDateJM(dataContrato) : '';
 
   return `
     <div id="contractModal" class="contractModal">
-      <div class="contractBox">
+      <div class="contractBox contractOldBox">
         <div class="contractActions">
           <button onclick="document.getElementById('contractModal').classList.remove('open')">Fechar</button>
           <button onclick="window.print()">Imprimir / salvar PDF</button>
         </div>
 
-        <div class="contractDocPortal">
-          <div class="contractLogoTop">
-            <img src="` + JM_LOGO_CLIENTE + `" alt="JM Neto Engenharia">
-          </div>
+        <div class="contractDoc oldContractDoc">
+          <section class="contractCover">
+            <img src="${JM_LOGO_CLIENTE}" alt="JM Neto Engenharia">
+            <h1>JM NETO ENGENHARIA</h1>
+            <h2>Contrato de Prestação de Serviços Técnicos</h2>
+            <p>Projetos • Consultorias • Aprovações • Engenharia Civil<br>Luís Eduardo Magalhães • Bahia</p>
+          </section>
 
-          <h1>CONTRATO DE PRESTAÇÃO DE SERVIÇOS TÉCNICOS DE ENGENHARIA</h1>
-          <p class="contractMuted">JM Neto Engenharia • Documento gerado a partir do contrato vinculado ao cadastro do cliente</p>
+          <section class="contractPage">
+            <div class="contractHeader">
+              <span>JM Neto Engenharia</span>
+              <img src="${JM_LOGO_CLIENTE}" alt="JM Neto Engenharia">
+              <span>Contrato</span>
+            </div>
 
-          <div class="contractSummary">
-            <div><small>Cliente</small><b>${escJM(cliente)}</b></div>
-            <div><small>Serviços</small><b>${escJM(servicos)}</b></div>
-            <div><small>Área construída</small><b>${escJM(area)}</b></div>
-            <div><small>Valor total</small><b>${escJM(valor)}</b></div>
-            <div><small>Prazo estimado</small><b>${escJM(prazo)}</b></div>
-            <div><small>Forma de pagamento</small><b>${escJM(forma)}</b></div>
-            <div><small>Endereço da obra</small><b>${escJM(obra)}</b></div>
-          </div>
+            <table class="contractSummary"><tbody>
+              <tr><td>Cliente</td><td>${escJM(cliente)}</td></tr>
+              <tr><td>CPF/CNPJ</td><td>${escJM(cpf)}</td></tr>
+              <tr><td>Serviços contratados</td><td>${escJM(servicos)}</td></tr>
+              <tr><td>Valor total</td><td>${escJM(valor)}</td></tr>
+              <tr><td>Forma de pagamento</td><td>${escJM(forma)}</td></tr>
+              <tr><td>Prazo estimado</td><td>${escJM(prazo)}</td></tr>
+              <tr><td>Endereço da obra</td><td>${escJM(endereco)}</td></tr>
+            </tbody></table>
 
-          <div class="contractParties">
             <p><b>CONTRATADO:</b> JOÃO MIGUEL GOMES DA SILVA NETO, Engenheiro Civil, inscrito no CREA-BA sob o nº 052377144-4, CPF nº 068.679.391-98, atuando sob o nome comercial <b>JM Neto Engenharia</b>, doravante denominado simplesmente <b>CONTRATADO</b>.</p>
             <p><b>CONTRATANTE:</b> ${escJM(cliente)}, CPF/CNPJ nº ${escJM(cpf)}, telefone ${escJM(telefone)}, e-mail ${escJM(email)}, doravante denominado simplesmente <b>CONTRATANTE</b>.</p>
-          </div>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 1 — DO OBJETO</h3>
+            <h3>CLÁUSULA 1 — DO OBJETO</h3>
             <p>1.1 O presente contrato tem por objeto a prestação de serviços técnicos de engenharia civil, conforme orçamento/proposta comercial aprovada entre as partes.</p>
-            <p>1.2 Os serviços contratados compreendem: <b>${escJM(servicos)}</b>.</p></div>
+            <p>1.2 Os serviços contratados compreendem: <b>${escJM(servicos)}</b>.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 2 — DO ESCOPO DOS SERVIÇOS</h3>
+            <h3>CLÁUSULA 2 — DO ESCOPO DOS SERVIÇOS</h3>
             <p>2.1 Os serviços serão desenvolvidos conforme informações fornecidas pelo CONTRATANTE, considerando área, padrão, programa de necessidades, endereço da obra e demais dados repassados.</p>
-            <p>2.2 Serviços adicionais não previstos inicialmente poderão ser objeto de aditivo contratual ou nova proposta comercial.</p></div>
+            <p>2.2 Serviços adicionais não previstos inicialmente poderão ser objeto de aditivo contratual ou nova proposta comercial.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 3 — DOS SERVIÇOS NÃO INCLUSOS</h3>
-            <p>3.1 Não estão inclusos neste contrato, salvo previsão expressa em proposta: taxas municipais, emolumentos, ART/RRT, levantamentos topográficos, sondagens, execução da obra, mão de obra, materiais, acompanhamento executivo contínuo e serviços de terceiros.</p></div>
+            <h3>CLÁUSULA 3 — DOS SERVIÇOS NÃO INCLUSOS</h3>
+            <p>3.1 Não estão inclusos neste contrato, salvo previsão expressa em proposta: taxas municipais, emolumentos, ART/RRT, levantamentos topográficos, sondagens, execução da obra, mão de obra, materiais, acompanhamento executivo contínuo e serviços de terceiros.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 4 — DOS PRAZOS</h3>
+            <h3>CLÁUSULA 4 — DOS PRAZOS</h3>
             <p>4.1 O prazo estimado para execução dos serviços é: <b>${escJM(prazo)}</b>.</p>
-            <p>4.2 A contagem dos prazos terá início após assinatura deste contrato, pagamento inicial quando aplicável e entrega integral da documentação necessária pelo CONTRATANTE.</p></div>
+            <p>4.2 A contagem dos prazos terá início após assinatura deste contrato, pagamento inicial quando aplicável e entrega integral da documentação necessária pelo CONTRATANTE.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 5 — DAS OBRIGAÇÕES DO CONTRATADO</h3>
-            <p>5.1 O CONTRATADO compromete-se a executar os serviços com zelo técnico, observar normas técnicas aplicáveis, manter comunicação adequada com o CONTRATANTE e entregar os serviços nas condições contratadas.</p></div>
+            <h3>CLÁUSULA 5 — DAS OBRIGAÇÕES DO CONTRATADO</h3>
+            <p>5.1 O CONTRATADO compromete-se a executar os serviços com zelo técnico, observar normas técnicas aplicáveis, manter comunicação adequada com o CONTRATANTE e entregar os serviços nas condições contratadas.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 6 — DAS OBRIGAÇÕES DO CONTRATANTE</h3>
-            <p>6.1 O CONTRATANTE deverá fornecer documentos e informações necessárias, efetuar os pagamentos nas datas acordadas, analisar materiais enviados e comunicar alterações relevantes no escopo.</p></div>
+            <h3>CLÁUSULA 6 — DAS OBRIGAÇÕES DO CONTRATANTE</h3>
+            <p>6.1 O CONTRATANTE deverá fornecer documentos e informações necessárias, efetuar os pagamentos nas datas acordadas, analisar materiais enviados e comunicar alterações relevantes no escopo.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 7 — DOS HONORÁRIOS E PAGAMENTO</h3>
+            <h3>CLÁUSULA 7 — DOS HONORÁRIOS E PAGAMENTO</h3>
             <p>7.1 O valor total dos serviços contratados será de <b>${escJM(valor)}</b>.</p>
-            <p>7.2 A forma de pagamento será: <b>${escJM(forma)}</b>.</p>
-            <p>7.3 Em caso de atraso superior a 05 (cinco) dias, poderão incidir multa de 2%, juros de 1% ao mês e suspensão temporária dos serviços até regularização financeira.</p></div>
+            <p>7.2 A forma de pagamento será: ${escJM(forma)}</p>
+            <p>7.3 Em caso de atraso superior a 05 (cinco) dias, poderão incidir multa de 2%, juros de 1% ao mês e suspensão temporária dos serviços até regularização financeira.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 8 — DAS REVISÕES</h3>
+            <h3>CLÁUSULA 8 — DAS REVISÕES</h3>
             <p>8.1 O presente contrato inclui até 02 (duas) revisões sem alteração significativa do conceito inicialmente aprovado.</p>
-            <p>8.2 Alterações relevantes de escopo, área, concepção, padrão ou programa de necessidades poderão gerar cobrança complementar.</p></div>
+            <p>8.2 Alterações relevantes de escopo, área, concepção, padrão ou programa de necessidades poderão gerar cobrança complementar.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 9 — DAS COMUNICAÇÕES</h3>
-            <p>9.1 As partes reconhecem como válidas as comunicações realizadas por telefone, WhatsApp ou outros meios digitais utilizados durante a contratação.</p>
-            <p>9.2 Aprovações digitais terão validade para fins de continuidade dos serviços.</p></div>
+            <h3>CLÁUSULA 9 — DAS COMUNICAÇÕES</h3>
+            <p>9.1 As partes reconhecem como válidas as comunicações realizadas por telefone, WhatsApp, e-mail ou outros meios digitais utilizados durante a contratação.</p>
+            <p>9.2 Aprovações digitais terão validade para fins de continuidade dos serviços.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 10 — DAS APROVAÇÕES</h3>
+            <h3>CLÁUSULA 10 — DAS APROVAÇÕES EM ÓRGÃOS PÚBLICOS</h3>
             <p>10.1 Quando contratada a etapa de aprovação junto aos órgãos públicos, o CONTRATADO compromete-se a realizar os procedimentos técnicos necessários para protocolo e acompanhamento do processo.</p>
-            <p>10.2 Prazos de análise de prefeitura, concessionárias ou órgãos públicos não dependem exclusivamente do CONTRATADO.</p></div>
+            <p>10.2 Prazos de análise de prefeitura, concessionárias ou órgãos públicos não dependem exclusivamente do CONTRATADO.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 11 — DA RESPONSABILIDADE TÉCNICA</h3>
-            <p>11.1 A responsabilidade técnica limita-se aos serviços efetivamente contratados e entregues, não abrangendo execução de obra ou alterações realizadas por terceiros sem anuência do CONTRATADO.</p></div>
+            <h3>CLÁUSULA 11 — DA RESPONSABILIDADE TÉCNICA</h3>
+            <p>11.1 A responsabilidade técnica do CONTRATADO limita-se aos serviços efetivamente contratados e entregues, não abrangendo execução de obra, alterações realizadas por terceiros ou uso dos projetos em sentido diverso.</p>
 
-          <div class="clauseBlock"><h3>CLÁUSULA 12 — DO FORO</h3>
-            <p>12.1 Fica eleito o foro competente para dirimir eventuais controvérsias oriundas deste contrato, observada a legislação aplicável.</p></div>
+            <h3>CLÁUSULA 12 — DA PROPRIEDADE INTELECTUAL</h3>
+            <p>12.1 Os projetos, documentos técnicos e arquivos produzidos permanecem protegidos pela legislação aplicável.</p>
+            <p>12.2 É vedada a reprodução, cessão ou reutilização em outro imóvel sem autorização expressa do CONTRATADO.</p>
 
-          <p class="contractDate">Luís Eduardo Magalhães/BA, ${escJM(data)}.</p>
+            <h3>CLÁUSULA 13 — DA PARALISAÇÃO DOS SERVIÇOS</h3>
+            <p>13.1 O CONTRATADO poderá suspender temporariamente os serviços em caso de inadimplência, ausência de documentação necessária, demora na aprovação de etapas ou impossibilidade técnica causada pelo CONTRATANTE.</p>
 
-          <div class="contractSignGrid">
-            <div>${escJM(cliente)}<br><span>CONTRATANTE</span></div>
-            <div>JOÃO MIGUEL GOMES DA SILVA NETO<br><span>CONTRATADO • JM Neto Engenharia</span></div>
-          </div>
+            <h3>CLÁUSULA 14 — DA RESCISÃO</h3>
+            <p>14.1 O presente contrato poderá ser rescindido por qualquer das partes mediante comunicação prévia.</p>
+            <p>14.2 Em caso de rescisão, permanecerão devidos os valores proporcionais aos serviços já executados.</p>
+
+            <h3>CLÁUSULA 15 — DAS DISPOSIÇÕES GERAIS</h3>
+            <p>15.1 Qualquer alteração neste contrato deverá ocorrer por escrito.</p>
+            <p>15.2 A eventual tolerância de uma das partes quanto ao descumprimento contratual não implicará renúncia de direitos.</p>
+
+            <h3>CLÁUSULA 16 — DO FORO</h3>
+            <p>16.1 Fica eleito o foro da comarca de Luís Eduardo Magalhães/BA para dirimir quaisquer controvérsias decorrentes deste contrato.</p>
+
+            <div class="contractSign">
+              <p class="date">Luís Eduardo Magalhães/BA, ______ de ________________________ de ________.</p>
+              <div class="contractSignatureGrid">
+                <div>CONTRATANTE<br>${escJM(cliente)}</div>
+                <div>JOÃO MIGUEL GOMES DA SILVA NETO<br>CREA-BA nº 052377144-4</div>
+              </div>
+              <div class="contractSignatureGrid">
+                <div>TESTEMUNHA 01<br>CPF: _______________________</div>
+                <div>TESTEMUNHA 02<br>CPF: _______________________</div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -1128,6 +1158,35 @@ function abrirPaginaClienteJM(b, st) {
       .paymentLine:last-child{border-bottom:0}.paymentLine strong{color:#10233f;text-align:right}
       .file{display:block;color:#10233f;text-decoration:none;padding:14px 15px;border-radius:16px;background:#f8fafc;border:1px solid var(--line);margin:9px 0;font-weight:900;transition:.2s ease}
       .file:hover{transform:translateX(4px);border-color:rgba(214,161,74,.42)}
+
+      
+      .contractOldBox{max-width:920px;background:#fff;color:#111827}
+      .oldContractDoc{background:#fff;color:#111827;font-family:Georgia,'Times New Roman',serif}
+      .oldContractDoc .contractCover{height:1120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 54px;page-break-after:always;background:#fff;color:#111827}
+      .oldContractDoc .contractCover img{width:190px;height:150px;object-fit:contain;margin-bottom:34px}
+      .oldContractDoc .contractCover h1{font-size:31px;letter-spacing:.04em;margin:0 0 14px;color:#111827}
+      .oldContractDoc .contractCover h2{font-family:Inter,Arial,sans-serif;font-size:14px;letter-spacing:.11em;text-transform:uppercase;font-weight:600;margin:0 0 14px;color:#374151}
+      .oldContractDoc .contractCover p{font-family:Inter,Arial,sans-serif;font-size:12px;color:#4b5563;margin:0;line-height:1.6}
+      .oldContractDoc .contractPage{padding:36px 42px 42px;background:#fff;color:#111827;page-break-after:auto}
+      .oldContractDoc .contractHeader{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #111827;padding-bottom:8px;margin-bottom:20px}
+      .oldContractDoc .contractHeader span{font-family:Inter,Arial,sans-serif;font-size:10px;color:#374151;letter-spacing:.02em}
+      .oldContractDoc .contractHeader img{width:64px;height:48px;object-fit:contain}
+      .oldContractDoc .contractSummary{width:100%;border-collapse:collapse;border-spacing:0;margin:0 0 18px;font-family:Inter,Arial,sans-serif;font-size:11px;color:#111827;background:#fff}
+      .oldContractDoc .contractSummary td{border:1px solid #111827;padding:8px 10px;background:#fff;color:#111827;line-height:1.35}
+      .oldContractDoc .contractSummary td:first-child{width:38%;font-weight:800;background:#f8fafc}
+      .oldContractDoc h3{font-family:Inter,Arial,sans-serif;font-size:12.5px;color:#111827;margin:15px 0 6px;line-height:1.3;page-break-after:avoid}
+      .oldContractDoc p,.oldContractDoc li{font-size:10.7px;line-height:1.55;color:#1f2937;margin:0 0 5px;text-align:justify}
+      .oldContractDoc .contractSign{margin-top:24px;page-break-inside:avoid}
+      .oldContractDoc .contractSign .date{text-align:center;margin:20px 0 28px;font-size:11px;color:#111827}
+      .oldContractDoc .contractSignatureGrid{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin:34px 0 0;font-family:Inter,Arial,sans-serif}
+      .oldContractDoc .contractSignatureGrid div{border-top:1px solid #111827;text-align:center;padding-top:8px;font-size:10.5px;line-height:1.45;color:#111827}
+      @media print{
+        body>*:not(.contractModal){display:none!important}
+        .contractModal{display:block!important;position:static!important;background:#fff!important;padding:0!important}
+        .contractBox{box-shadow:none!important;border-radius:0!important;max-width:none!important}
+        .contractActions{display:none!important}
+        .oldContractDoc .contractCover{height:100vh}
+      }
 
       .contractOpenBtn{width:100%;border:0;border-radius:16px;padding:14px 16px;margin-top:12px;background:linear-gradient(135deg,#b67c36,#e4b35e);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 12px 28px rgba(182,124,54,.22);transition:.2s ease}
       .contractOpenBtn:hover{transform:translateY(-2px)}

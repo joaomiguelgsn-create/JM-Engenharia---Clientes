@@ -660,11 +660,10 @@ button{cursor:pointer}
       </div>
     </div>
 
-    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" onsubmit="return enviarOrcamentoJM(event)">
+    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="formsubmit-frame" onsubmit="return enviarOrcamentoJM(event)">
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_next" id="formsubmit-next" value="">
       <input type="text" name="_honey" style="display:none">
       <div class="quote-head">
         <h2>📋 Solicite seu orçamento</h2>
@@ -1879,17 +1878,16 @@ async function consultarClienteJM(event) {
 }
 </script>
 
+<iframe name="formsubmit-frame" id="formsubmit-frame" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;border:0;opacity:0;" aria-hidden="true"></iframe>
 <script>
+let envioOrcamentoIniciadoJM = false;
+
 function enviarOrcamentoJM(event) {
   const form = event.target;
   const status = document.getElementById("orcamento-status");
   const button = form.querySelector('button[type="submit"]');
-  const next = document.getElementById("formsubmit-next");
 
-  if (next) {
-    const base = window.location.origin + window.location.pathname;
-    next.value = base + "?orcamento=enviado#orcamento";
-  }
+  envioOrcamentoIniciadoJM = true;
 
   if (button) {
     button.dataset.originalText = button.innerHTML;
@@ -1905,16 +1903,28 @@ function enviarOrcamentoJM(event) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("orcamento") === "enviado") {
-    const status = document.getElementById("orcamento-status");
-    const form = document.getElementById("orcamento");
-    if (status) {
-      status.className = "form-submit-note success";
-      status.textContent = "Solicitação enviada com sucesso. Em breve entraremos em contato.";
-    }
-    if (form) form.scrollIntoView({ behavior: "smooth", block: "center" });
-    history.replaceState(null, "", window.location.pathname + "#orcamento");
+  const iframe = document.getElementById("formsubmit-frame");
+  const form = document.getElementById("orcamento");
+  const status = document.getElementById("orcamento-status");
+
+  if (iframe) {
+    iframe.addEventListener("load", function () {
+      if (!envioOrcamentoIniciadoJM) return;
+
+      if (status) {
+        status.className = "form-submit-note success";
+        status.textContent = "Solicitação enviada com sucesso. Em breve entraremos em contato.";
+      }
+
+      if (form) form.reset();
+
+      const button = form ? form.querySelector('button[type="submit"]') : null;
+      if (button) {
+        button.innerHTML = button.dataset.originalText || "🚀 Enviar solicitação";
+      }
+
+      envioOrcamentoIniciadoJM = false;
+    });
   }
 });
 </script>

@@ -904,8 +904,21 @@ function barraJM(percent) {
 
 
 
+
+function contratoExatoSalvoJM(b, contracts) {
+  const budgetId = String(b.id || b.projectId || '');
+  const fromContracts = (contracts || []).find(c =>
+    String(c.budgetId || c.projectId || '') === budgetId && (c.html || c.contractHtml)
+  );
+  if (fromContracts) return fromContracts.html || fromContracts.contractHtml || '';
+
+  if (b.html || b.contractHtml) return b.html || b.contractHtml;
+
+  return '';
+}
+
 function contratoCriadoJM(b, contracts) {
-  return (Array.isArray(contracts) && contracts.length) || b.contractCreatedAt || b.contractLocked;
+  return !!contratoExatoSalvoJM(b, contracts) || (Array.isArray(contracts) && contracts.length) || b.contractCreatedAt || b.contractLocked;
 }
 
 function contratoDataJM(b, contracts) {
@@ -917,131 +930,36 @@ function contratoDataJM(b, contracts) {
 
 
 
+
 function gerarContratoPortalJM(b, contracts) {
-  const dataContrato = contratoDataJM(b, contracts);
-  const cliente = nomeClienteJM(b);
-  const cpf = cpfClienteJM(b) || '____________________________';
-  const telefone = b.telefone || '____________________________';
-  const email = b.email || '____________________________';
-  const cidade = b.cidade || 'Luís Eduardo Magalhães/BA';
-  const endereco = b.endereco || b.enderecoObra || b.obra || '____________________________';
-  const servicos = projetosTextoJM(b);
-  const prazo = b.entrega ? brDateJM(b.entrega) : (b.prazo || b.deadline || b.prazoEstimado || 'A combinar');
-  const valorBruto = b.negociado || b.valor || b.total || b.preco || b.final || 0;
-  const valor = moneyJM(valorBruto);
-  const entrada = moneyJM(b.entrada || b.downPayment || 0);
-  const forma = b.paymentDue
-    ? 'Entrada sugerida de ' + entrada + ' e saldo conforme etapas, com vencimento previsto para ' + brDateJM(b.paymentDue) + '.'
-    : (b.paymentCustom || b.paymentMethod || 'À vista, parcelado ou por etapas, conforme combinado entre as partes.');
-  const data = dataContrato ? brDateJM(dataContrato) : '';
+  const htmlExato = contratoExatoSalvoJM(b, contracts);
+
+  if (htmlExato) {
+    return `
+      <div id="contractModal" class="contractModal">
+        <div class="contractBox contractOldBox">
+          <div class="contractActions">
+            <button onclick="document.getElementById('contractModal').classList.remove('open')">Fechar</button>
+            <button onclick="window.print()">Imprimir / salvar PDF</button>
+          </div>
+          <div class="exactContractWrap">
+            ${htmlExato}
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   return `
     <div id="contractModal" class="contractModal">
       <div class="contractBox contractOldBox">
         <div class="contractActions">
           <button onclick="document.getElementById('contractModal').classList.remove('open')">Fechar</button>
-          <button onclick="window.print()">Imprimir / salvar PDF</button>
         </div>
-
-        <div class="contractDoc oldContractDoc">
-          <section class="contractCover">
-            <img src="${JM_LOGO_CLIENTE}" alt="JM Neto Engenharia">
-            <h1>JM NETO ENGENHARIA</h1>
-            <h2>Contrato de Prestação de Serviços Técnicos</h2>
-            <p>Projetos • Consultorias • Aprovações • Engenharia Civil<br>Luís Eduardo Magalhães • Bahia</p>
-          </section>
-
-          <section class="contractPage">
-            <div class="contractHeader">
-              <span>JM Neto Engenharia</span>
-              <img src="${JM_LOGO_CLIENTE}" alt="JM Neto Engenharia">
-              <span>Contrato</span>
-            </div>
-
-            <table class="contractSummary"><tbody>
-              <tr><td>Cliente</td><td>${escJM(cliente)}</td></tr>
-              <tr><td>CPF/CNPJ</td><td>${escJM(cpf)}</td></tr>
-              <tr><td>Serviços contratados</td><td>${escJM(servicos)}</td></tr>
-              <tr><td>Valor total</td><td>${escJM(valor)}</td></tr>
-              <tr><td>Forma de pagamento</td><td>${escJM(forma)}</td></tr>
-              <tr><td>Prazo estimado</td><td>${escJM(prazo)}</td></tr>
-              <tr><td>Endereço da obra</td><td>${escJM(endereco)}</td></tr>
-            </tbody></table>
-
-            <p><b>CONTRATADO:</b> JOÃO MIGUEL GOMES DA SILVA NETO, Engenheiro Civil, inscrito no CREA-BA sob o nº 052377144-4, CPF nº 068.679.391-98, atuando sob o nome comercial <b>JM Neto Engenharia</b>, doravante denominado simplesmente <b>CONTRATADO</b>.</p>
-            <p><b>CONTRATANTE:</b> ${escJM(cliente)}, CPF/CNPJ nº ${escJM(cpf)}, telefone ${escJM(telefone)}, e-mail ${escJM(email)}, doravante denominado simplesmente <b>CONTRATANTE</b>.</p>
-
-            <h3>CLÁUSULA 1 — DO OBJETO</h3>
-            <p>1.1 O presente contrato tem por objeto a prestação de serviços técnicos de engenharia civil, conforme orçamento/proposta comercial aprovada entre as partes.</p>
-            <p>1.2 Os serviços contratados compreendem: <b>${escJM(servicos)}</b>.</p>
-
-            <h3>CLÁUSULA 2 — DO ESCOPO DOS SERVIÇOS</h3>
-            <p>2.1 Os serviços serão desenvolvidos conforme informações fornecidas pelo CONTRATANTE, considerando área, padrão, programa de necessidades, endereço da obra e demais dados repassados.</p>
-            <p>2.2 Serviços adicionais não previstos inicialmente poderão ser objeto de aditivo contratual ou nova proposta comercial.</p>
-
-            <h3>CLÁUSULA 3 — DOS SERVIÇOS NÃO INCLUSOS</h3>
-            <p>3.1 Não estão inclusos neste contrato, salvo previsão expressa em proposta: taxas municipais, emolumentos, ART/RRT, levantamentos topográficos, sondagens, execução da obra, mão de obra, materiais, acompanhamento executivo contínuo e serviços de terceiros.</p>
-
-            <h3>CLÁUSULA 4 — DOS PRAZOS</h3>
-            <p>4.1 O prazo estimado para execução dos serviços é: <b>${escJM(prazo)}</b>.</p>
-            <p>4.2 A contagem dos prazos terá início após assinatura deste contrato, pagamento inicial quando aplicável e entrega integral da documentação necessária pelo CONTRATANTE.</p>
-
-            <h3>CLÁUSULA 5 — DAS OBRIGAÇÕES DO CONTRATADO</h3>
-            <p>5.1 O CONTRATADO compromete-se a executar os serviços com zelo técnico, observar normas técnicas aplicáveis, manter comunicação adequada com o CONTRATANTE e entregar os serviços nas condições contratadas.</p>
-
-            <h3>CLÁUSULA 6 — DAS OBRIGAÇÕES DO CONTRATANTE</h3>
-            <p>6.1 O CONTRATANTE deverá fornecer documentos e informações necessárias, efetuar os pagamentos nas datas acordadas, analisar materiais enviados e comunicar alterações relevantes no escopo.</p>
-
-            <h3>CLÁUSULA 7 — DOS HONORÁRIOS E PAGAMENTO</h3>
-            <p>7.1 O valor total dos serviços contratados será de <b>${escJM(valor)}</b>.</p>
-            <p>7.2 A forma de pagamento será: ${escJM(forma)}</p>
-            <p>7.3 Em caso de atraso superior a 05 (cinco) dias, poderão incidir multa de 2%, juros de 1% ao mês e suspensão temporária dos serviços até regularização financeira.</p>
-
-            <h3>CLÁUSULA 8 — DAS REVISÕES</h3>
-            <p>8.1 O presente contrato inclui até 02 (duas) revisões sem alteração significativa do conceito inicialmente aprovado.</p>
-            <p>8.2 Alterações relevantes de escopo, área, concepção, padrão ou programa de necessidades poderão gerar cobrança complementar.</p>
-
-            <h3>CLÁUSULA 9 — DAS COMUNICAÇÕES</h3>
-            <p>9.1 As partes reconhecem como válidas as comunicações realizadas por telefone, WhatsApp, e-mail ou outros meios digitais utilizados durante a contratação.</p>
-            <p>9.2 Aprovações digitais terão validade para fins de continuidade dos serviços.</p>
-
-            <h3>CLÁUSULA 10 — DAS APROVAÇÕES EM ÓRGÃOS PÚBLICOS</h3>
-            <p>10.1 Quando contratada a etapa de aprovação junto aos órgãos públicos, o CONTRATADO compromete-se a realizar os procedimentos técnicos necessários para protocolo e acompanhamento do processo.</p>
-            <p>10.2 Prazos de análise de prefeitura, concessionárias ou órgãos públicos não dependem exclusivamente do CONTRATADO.</p>
-
-            <h3>CLÁUSULA 11 — DA RESPONSABILIDADE TÉCNICA</h3>
-            <p>11.1 A responsabilidade técnica do CONTRATADO limita-se aos serviços efetivamente contratados e entregues, não abrangendo execução de obra, alterações realizadas por terceiros ou uso dos projetos em sentido diverso.</p>
-
-            <h3>CLÁUSULA 12 — DA PROPRIEDADE INTELECTUAL</h3>
-            <p>12.1 Os projetos, documentos técnicos e arquivos produzidos permanecem protegidos pela legislação aplicável.</p>
-            <p>12.2 É vedada a reprodução, cessão ou reutilização em outro imóvel sem autorização expressa do CONTRATADO.</p>
-
-            <h3>CLÁUSULA 13 — DA PARALISAÇÃO DOS SERVIÇOS</h3>
-            <p>13.1 O CONTRATADO poderá suspender temporariamente os serviços em caso de inadimplência, ausência de documentação necessária, demora na aprovação de etapas ou impossibilidade técnica causada pelo CONTRATANTE.</p>
-
-            <h3>CLÁUSULA 14 — DA RESCISÃO</h3>
-            <p>14.1 O presente contrato poderá ser rescindido por qualquer das partes mediante comunicação prévia.</p>
-            <p>14.2 Em caso de rescisão, permanecerão devidos os valores proporcionais aos serviços já executados.</p>
-
-            <h3>CLÁUSULA 15 — DAS DISPOSIÇÕES GERAIS</h3>
-            <p>15.1 Qualquer alteração neste contrato deverá ocorrer por escrito.</p>
-            <p>15.2 A eventual tolerância de uma das partes quanto ao descumprimento contratual não implicará renúncia de direitos.</p>
-
-            <h3>CLÁUSULA 16 — DO FORO</h3>
-            <p>16.1 Fica eleito o foro da comarca de Luís Eduardo Magalhães/BA para dirimir quaisquer controvérsias decorrentes deste contrato.</p>
-
-            <div class="contractSign">
-              <p class="date">Luís Eduardo Magalhães/BA, ______ de ________________________ de ________.</p>
-              <div class="contractSignatureGrid">
-                <div>CONTRATANTE<br>${escJM(cliente)}</div>
-                <div>JOÃO MIGUEL GOMES DA SILVA NETO<br>CREA-BA nº 052377144-4</div>
-              </div>
-              <div class="contractSignatureGrid">
-                <div>TESTEMUNHA 01<br>CPF: _______________________</div>
-                <div>TESTEMUNHA 02<br>CPF: _______________________</div>
-              </div>
-            </div>
-          </section>
+        <div style="padding:34px;color:#10233f;background:#fff">
+          <h2>Contrato ainda não salvo no portal</h2>
+          <p>Abra este contrato uma vez no sistema administrativo antigo para que ele seja salvo exatamente na nuvem.</p>
+          <p>Depois disso, o cliente verá aqui o mesmo contrato gerado no outro site.</p>
         </div>
       </div>
     </div>
@@ -1160,7 +1078,7 @@ function abrirPaginaClienteJM(b, st) {
       .file:hover{transform:translateX(4px);border-color:rgba(214,161,74,.42)}
 
       
-      .contractOldBox{max-width:920px;background:#fff;color:#111827}
+      .contractOldBox{max-width:920px;background:#fff;color:#111827}.exactContractWrap{background:#fff;color:#111827}.exactContractWrap .contractPrintActions{display:none!important}
       .oldContractDoc{background:#fff;color:#111827;font-family:Georgia,'Times New Roman',serif}
       .oldContractDoc .contractCover{height:1120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 54px;page-break-after:always;background:#fff;color:#111827}
       .oldContractDoc .contractCover img{width:190px;height:150px;object-fit:contain;margin-bottom:34px}

@@ -460,6 +460,16 @@ button{cursor:pointer}
 
 
 
+
+<style>
+.form-submit-note{
+  margin:10px 0 0;
+  color:#5e6875;
+  font-size:13px;
+  line-height:1.45;
+  text-align:center;
+}
+</style>
 </head>
 <body>
 
@@ -522,7 +532,7 @@ button{cursor:pointer}
       </div>
     </div>
 
-    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST">
+    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="_blank">
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
@@ -546,7 +556,7 @@ button{cursor:pointer}
           <label class="project-option"><input type="checkbox" name="servicos[]" value="Aprovação na prefeitura"><span>✅ Aprovação na Prefeitura</span></label>
         </div>
         <div class="field full"><textarea name="mensagem" placeholder="Conte mais detalhes sobre seu projeto ou necessidade"></textarea></div>
-        <div class="form-actions"><button class="btn primary" type="submit">🚀 Enviar solicitação</button></div>
+        <div class="form-actions"><button class="btn primary" type="submit">🚀 Enviar solicitação</button><p class="form-submit-note">Após enviar, uma aba de confirmação será aberta. Se for o primeiro envio, confirme o recebimento pelo e-mail da JM Neto Engenharia.</p></div>
       </div>
     </form>
       
@@ -1103,7 +1113,7 @@ function abrirPaginaClienteJM(b, st) {
       document.querySelectorAll('.card,.panel,.file,.tabBtn').forEach(el=>{
         el.addEventListener('click',()=>{el.style.transform='scale(.985)';setTimeout(()=>el.style.transform='',120)})
       });
-    </script>
+    <\/script>
   </body>
   </html>
   `);

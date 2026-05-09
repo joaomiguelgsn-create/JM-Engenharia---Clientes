@@ -699,6 +699,113 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style>
+/* Logo do menu maior e com respiro */
+.brand .logo-box{
+  width:118px !important;
+  height:118px !important;
+  min-width:118px !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.brand .logo-box img{
+  width:108px !important;
+  height:auto !important;
+  max-height:none !important;
+  object-fit:contain !important;
+}
+@media (max-width:768px){
+  .brand .logo-box{
+    width:92px !important;
+    height:92px !important;
+    min-width:92px !important;
+  }
+  .brand .logo-box img{
+    width:86px !important;
+  }
+}
+</style>
+
+
+<style>
+.contact-intro-jm{
+  position:relative;
+  max-width:980px;
+  margin:46px auto 22px !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  text-align:center;
+}
+.contact-intro-jm::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(760px, calc(100% - 28px));
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(198,135,54,.35), transparent);
+  transform:translate(-50%,-50%);
+  z-index:0;
+}
+.contact-intro-jm span,
+.contact-intro-jm strong{
+  position:relative;
+  z-index:1;
+}
+.contact-intro-jm .contact-pill-jm{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  max-width:calc(100% - 24px);
+  padding:16px 24px;
+  border-radius:999px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(198,135,54,.18);
+  box-shadow:0 18px 42px rgba(16,35,63,.10);
+  color:#425066;
+  font-weight:800;
+  font-size:clamp(1rem, 1.7vw, 1.16rem);
+  line-height:1.45;
+  animation:contactFloatJM 4.5s ease-in-out infinite;
+}
+.contact-intro-jm .contact-pill-jm b{
+  color:#10233f;
+}
+.contact-intro-jm .contact-icon-jm{
+  display:inline-flex;
+  width:34px;
+  height:34px;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:linear-gradient(135deg,#c68736,#d9a24a);
+  color:#fff;
+  box-shadow:0 10px 24px rgba(198,135,54,.22);
+  flex:0 0 auto;
+}
+@keyframes contactFloatJM{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+@media (max-width:768px){
+  .contact-intro-jm{
+    margin:32px auto 18px !important;
+  }
+  .contact-intro-jm .contact-pill-jm{
+    border-radius:24px;
+    padding:15px 18px;
+    text-align:left;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -761,7 +868,7 @@ button{cursor:pointer}
       </div>
     </div>
 
-    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="formsubmit-frame" onsubmit="return enviarOrcamentoJM(event)">
+    <form class="quote-box" id="orcamento" target="formsubmit-frame" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" onsubmit="return enviarOrcamentoJM(event)">
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
@@ -816,7 +923,7 @@ button{cursor:pointer}
 
 
 <div class="contact-intro-jm" id="contato-intro">
-  <strong>Ou, se preferir, entre em contato</strong> por um dos meios abaixo.
+  <span class="contact-pill-jm"><span class="contact-icon-jm">💬</span><span><b>Prefere falar direto?</b> Entre em contato por um dos meios abaixo.</span></span>
 </div>
 
 <div id="contato" class="contact-strip">
@@ -1713,6 +1820,58 @@ document.addEventListener('DOMContentLoaded', function(){
   if (window.location.hash === '#contato') {
     setTimeout(centralizarContatoJM, 300);
   }
+});
+</script>
+
+
+<iframe name="formsubmit-frame" id="formsubmit-frame" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;border:0;opacity:0;pointer-events:none;" aria-hidden="true"></iframe>
+<script>
+let envioOrcamentoIniciadoJM = false;
+
+function enviarOrcamentoJM(event) {
+  const form = event.target;
+  const status = document.getElementById("orcamento-status");
+  const button = form.querySelector('button[type="submit"]');
+
+  envioOrcamentoIniciadoJM = true;
+
+  if (button) {
+    button.dataset.originalText = button.innerHTML;
+    button.innerHTML = "⏳ Enviando...";
+  }
+
+  if (status) {
+    status.className = "form-submit-note sending";
+    status.textContent = "Enviando sua solicitação...";
+  }
+
+  return true;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const iframe = document.getElementById("formsubmit-frame");
+  const form = document.getElementById("orcamento");
+  const status = document.getElementById("orcamento-status");
+
+  if (!iframe) return;
+
+  iframe.addEventListener("load", function () {
+    if (!envioOrcamentoIniciadoJM) return;
+
+    if (status) {
+      status.className = "form-submit-note success";
+      status.textContent = "Solicitação enviada com sucesso. Em breve entraremos em contato.";
+    }
+
+    if (form) form.reset();
+
+    const button = form ? form.querySelector('button[type="submit"]') : null;
+    if (button) {
+      button.innerHTML = button.dataset.originalText || "🚀 Enviar solicitação";
+    }
+
+    envioOrcamentoIniciadoJM = false;
+  });
 });
 </script>
 

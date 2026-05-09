@@ -367,7 +367,6 @@ button{cursor:pointer}
 }
 </style>
 
-
 <style>
 .hero-logo-showcase{
   position:relative;
@@ -421,7 +420,6 @@ button{cursor:pointer}
 }
 </style>
 
-
 <style>
 .footer-branding{
   margin-top:34px;
@@ -459,67 +457,6 @@ button{cursor:pointer}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
-
-
-<style>
-.form-submit-note{
-  margin:10px 0 0;
-  color:#5e6875;
-  font-size:13px;
-  line-height:1.45;
-  text-align:center;
-}
-</style>
-
-<style>
-.form-submit-note{
-  margin:12px 0 0;
-  font-size:14px;
-  line-height:1.45;
-  text-align:center;
-  font-weight:800;
-}
-.form-submit-note.sending{color:#92400e}
-.form-submit-note.success{
-  color:#166534;
-  background:#dcfce7;
-  border:1px solid #86efac;
-  border-radius:14px;
-  padding:12px 14px;
-}
-</style>
-
-
-<style>
-.form-submit-note{
-  margin:12px 0 0;
-  font-size:14px;
-  line-height:1.45;
-  text-align:center;
-  font-weight:800;
-}
-.form-submit-note:empty{display:none}
-.form-submit-note.sending{display:block;color:#92400e}
-.form-submit-note.success{
-  display:block;
-  color:#166534;
-  background:#dcfce7;
-  border:1px solid #86efac;
-  border-radius:14px;
-  padding:12px 14px;
-}
-.form-submit-note.error{
-  display:block;
-  color:#7f1d1d;
-  background:#fee2e2;
-  border:1px solid #fecaca;
-  border-radius:14px;
-  padding:12px 14px;
-}
-</style>
-
 
 <style>
 /* Ajustes finais solicitados: formulário sem redirecionar, logo com respiro e cards reposicionados */
@@ -598,6 +535,74 @@ button{cursor:pointer}
   }
 }
 </style>
+<style>
+.form-submit-note{
+  margin:12px 0 0;
+  font-size:14px;
+  line-height:1.45;
+  text-align:center;
+  font-weight:800;
+}
+.form-submit-note:empty{display:none}
+.form-submit-note.sending{display:block;color:#92400e}
+.form-submit-note.success{
+  display:block;
+  color:#166534;
+  background:#dcfce7;
+  border:1px solid #86efac;
+  border-radius:14px;
+  padding:12px 14px;
+}
+.form-submit-note.error{
+  display:block;
+  color:#7f1d1d;
+  background:#fee2e2;
+  border:1px solid #fecaca;
+  border-radius:14px;
+  padding:12px 14px;
+}
+</style>
+
+<style>
+.process-section{
+  width:min(1180px, calc(100% - 48px));
+  margin:46px auto 24px;
+  padding:38px;
+  border-radius:28px;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 22px 60px rgba(15,35,63,.10);
+  border:1px solid rgba(16,35,63,.08);
+}
+.process-title{text-align:center;margin-bottom:26px}
+.process-title small{
+  display:inline-block;
+  color:#c98b35;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.process-title h2{margin:0;color:#10233f;font-size:clamp(28px,3vw,42px)}
+.process-title p{margin:10px auto 0;max-width:700px;color:#5e6875;font-size:18px;line-height:1.55}
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.process-step{
+  position:relative;
+  padding:24px 20px;
+  border-radius:22px;
+  background:#f7f9fc;
+  border:1px solid rgba(16,35,63,.08);
+}
+.process-step .num{
+  width:42px;height:42px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  background:#10233f;color:#fff;font-weight:900;margin-bottom:16px;
+}
+.process-step h3{margin:0 0 8px;color:#10233f;font-size:20px}
+.process-step p{margin:0;color:#5e6875;line-height:1.5;font-size:15px}
+@media(max-width:900px){.process-grid{grid-template-columns:repeat(2,1fr)}.process-section{padding:28px}}
+@media(max-width:560px){.process-grid{grid-template-columns:1fr}.process-section{width:min(100% - 28px,1180px);padding:24px 18px;margin-top:34px}.process-title p{font-size:16px}}
+</style>
+
 </head>
 <body>
 
@@ -699,6 +704,20 @@ button{cursor:pointer}
   <div class="info-card"><div class="ic">🛡️</div><h3>Conformidade</h3><p>Projetos de acordo com normas e exigências legais.</p></div>
 </div>
 
+<section class="process-section" id="como-funciona">
+  <div class="process-title">
+    <small>Como funciona</small>
+    <h2>Do primeiro contato ao início do projeto.</h2>
+    <p>Um processo simples para entender sua necessidade, organizar as informações e dar o próximo passo com segurança.</p>
+  </div>
+  <div class="process-grid">
+    <div class="process-step"><div class="num">1</div><h3>Você envia os dados</h3><p>Preencha o formulário com as informações principais da obra ou regularização.</p></div>
+    <div class="process-step"><div class="num">2</div><h3>Análise inicial</h3><p>A necessidade é avaliada para entender escopo, tipo de projeto e informações faltantes.</p></div>
+    <div class="process-step"><div class="num">3</div><h3>Retorno com proposta</h3><p>Você recebe um direcionamento claro sobre o orçamento e os próximos passos.</p></div>
+    <div class="process-step"><div class="num">4</div><h3>Início do projeto</h3><p>Com tudo alinhado, começa o desenvolvimento técnico do seu projeto.</p></div>
+  </div>
+</section>
+
 <div id="contato" class="contact-strip">
   <div class="contact-item"><i>✉️</i> jmnetoengenharia@gmail.com</div>
   <div class="contact-item"><i>📞</i> (62) 99123-0146</div>
@@ -752,14 +771,6 @@ button{cursor:pointer}
 
 <div class="toast" id="toast"></div>
 
-
-
-
-
-
-
-
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const telefoneInput = document.getElementById('orcamento-telefone');
@@ -787,7 +798,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 </script>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -838,13 +848,6 @@ function abrirOrcamento(event) {
   }, 800);
 }
 </script>
-
-
-
-
-
-
-
 
 <script>
 const JM_SUPABASE_URL_PUBLIC = 'https://ubbhbrfvsiiyenbqlaqs.supabase.co';
@@ -1106,9 +1109,6 @@ function barraJM(percent) {
   return '<div class="bar"><i style="width:' + p + '%"></i></div><strong>' + p + '%</strong>';
 }
 
-
-
-
 function contratoExatoSalvoJM(b, contracts) {
   const budgetId = String(b.id || b.projectId || '');
 
@@ -1134,9 +1134,6 @@ function contratoDataJM(b, contracts) {
   }
   return b.contractCreatedAt || '';
 }
-
-
-
 
 function gerarContratoPortalJM(b, contracts) {
   const htmlExato = contratoExatoSalvoJM(b, contracts);
@@ -1306,7 +1303,6 @@ function abrirPaginaClienteJM(b, st) {
         .contractActions{display:none!important}
         .oldContractDoc .contractCover{height:100vh}
       }
-
 
       .contractViewport{background:#f1f5f9;padding:22px;overflow:auto;max-height:78vh}
       .exactContractWrap .contractDoc,
@@ -1595,8 +1591,6 @@ function abrirPaginaClienteJM(b, st) {
   </html>
   `);
 }
-
-
 
 function voltarSiteJM() {
   const base = window.location.origin + window.location.pathname;
@@ -1889,10 +1883,36 @@ async function consultarClienteJM(event) {
 }
 </script>
 
-
 <iframe name="formsubmit-frame" id="formsubmit-frame" style="display:none;width:0;height:0;border:0;" title="Envio do formulário"></iframe>
 <script>
+let envioOrcamentoTimerJM = null;
 let envioOrcamentoIniciadoJM = false;
+
+function finalizarEnvioOrcamentoJM() {
+  if (!envioOrcamentoIniciadoJM) return;
+
+  const form = document.getElementById('orcamento');
+  const status = document.getElementById('orcamento-status');
+  const button = form ? form.querySelector('button[type="submit"]') : null;
+
+  if (status) {
+    status.className = 'form-submit-note success';
+    status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
+  }
+
+  if (form) form.reset();
+
+  if (button) {
+    button.disabled = false;
+    button.innerHTML = button.dataset.originalText || '🚀 Enviar solicitação';
+  }
+
+  envioOrcamentoIniciadoJM = false;
+  if (envioOrcamentoTimerJM) {
+    clearTimeout(envioOrcamentoTimerJM);
+    envioOrcamentoTimerJM = null;
+  }
+}
 
 function enviarOrcamentoJM(event) {
   const form = event.target;
@@ -1912,38 +1932,23 @@ function enviarOrcamentoJM(event) {
     status.textContent = 'Enviando sua solicitação...';
   }
 
-  // Não bloqueia o envio: o formulário segue normalmente para o iframe invisível.
+  if (envioOrcamentoTimerJM) clearTimeout(envioOrcamentoTimerJM);
+
+  // Em alguns celulares o iframe envia, mas não dispara o evento load.
+  // Por isso o sucesso aparece por tempo também, sem travar o botão em "Enviando...".
+  envioOrcamentoTimerJM = setTimeout(finalizarEnvioOrcamentoJM, 2500);
+
   return true;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
   const frame = document.getElementById('formsubmit-frame');
-  const form = document.getElementById('orcamento');
-  const status = document.getElementById('orcamento-status');
-  const button = form ? form.querySelector('button[type="submit"]') : null;
-
   if (!frame) return;
-
   frame.addEventListener('load', function () {
-    if (!envioOrcamentoIniciadoJM) return;
-
-    if (status) {
-      status.className = 'form-submit-note success';
-      status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
-    }
-
-    if (form) form.reset();
-
-    if (button) {
-      button.disabled = false;
-      button.innerHTML = button.dataset.originalText || '🚀 Enviar solicitação';
-    }
-
-    envioOrcamentoIniciadoJM = false;
+    setTimeout(finalizarEnvioOrcamentoJM, 600);
   });
 });
 </script>
-
 
 <script>
 function focarAreaClienteJM() {

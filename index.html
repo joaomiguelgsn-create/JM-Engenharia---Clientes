@@ -389,7 +389,7 @@ button{cursor:pointer}
 
 .hero-logo-image{
   position:relative;
-  width:140px;
+  width:220px;
   max-width:42vw;
   object-fit:contain;
   filter:
@@ -405,7 +405,7 @@ button{cursor:pointer}
     brightness(1.08);
 }
 
-.brand .logo-box img{width:96px;
+.brand .logo-box img{width:150px;
   height:auto;
   object-fit:contain;
 }
@@ -416,7 +416,7 @@ button{cursor:pointer}
   }
 
   .hero-logo-image{
-    width:118px;
+    width:220px;
   }
 }
 </style>
@@ -435,7 +435,7 @@ button{cursor:pointer}
   opacity:.95;
 }
 
-.footer-branding img{width:120px;
+.footer-branding img{width:180px;
   height:auto;
   object-fit:contain;
   filter:
@@ -612,7 +612,7 @@ button{cursor:pointer}
       <h1>Soluções de <span>engenharia</span> com qualidade e confiança</h1>
       <p>Projetos completos e personalizados para transformar ideias em realidade.</p>
       <div class="actions">
-        <button class="btn primary" type="button" onclick="abrirOrcamento(event)">📄 Abrir contrato • Solicite um orçamento</button>
+        <button class="btn primary" type="button" onclick="abrirOrcamento(event)">📄 Solicite um orçamento</button>
         <a class="btn" href="#area-cliente">🏙️ Acompanhe seu projeto</a>
       </div>
       <div class="stats">
@@ -622,7 +622,7 @@ button{cursor:pointer}
       </div>
     </div>
 
-    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST">
+    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="formsubmit-frame" onsubmit="return enviarOrcamentoJM(event)">
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
@@ -653,6 +653,7 @@ button{cursor:pointer}
       
   </div>
 </section>
+<iframe name="formsubmit-frame" id="formsubmit-frame" style="display:none;width:0;height:0;border:0;"></iframe>
 
 <div class="info-cards">
   <div class="info-card"><div class="ic">📋</div><h3>Projetos completos</h3><p>Soluções técnicas para todas as etapas da sua obra.</p></div>
@@ -1553,7 +1554,60 @@ function abrirPaginaClienteJM(b, st) {
         el.addEventListener('click',()=>{el.style.transform='scale(.985)';setTimeout(()=>el.style.transform='',120)})
       });
     <\/script>
-  </body>
+  
+<script>
+let envioOrcamentoIniciadoJM = false;
+
+function enviarOrcamentoJM(event) {
+  const form = event.target;
+  const status = document.getElementById('orcamento-status');
+  const button = form.querySelector('button[type="submit"]');
+
+  envioOrcamentoIniciadoJM = true;
+
+  if (button) {
+    button.disabled = true;
+    button.dataset.originalText = button.innerHTML;
+    button.innerHTML = '⏳ Enviando...';
+  }
+
+  if (status) {
+    status.className = 'form-submit-note sending';
+    status.textContent = 'Enviando sua solicitação...';
+  }
+
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const frame = document.getElementById('formsubmit-frame');
+  const form = document.getElementById('orcamento');
+  const status = document.getElementById('orcamento-status');
+  const button = form ? form.querySelector('button[type="submit"]') : null;
+
+  if (!frame) return;
+
+  frame.addEventListener('load', function () {
+    if (!envioOrcamentoIniciadoJM) return;
+
+    if (status) {
+      status.className = 'form-submit-note success';
+      status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
+    }
+
+    if (form) form.reset();
+
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = button.dataset.originalText || '🚀 Enviar solicitação';
+    }
+
+    envioOrcamentoIniciadoJM = false;
+  });
+});
+</script>
+
+</body>
   </html>
   `);
 }
@@ -1728,7 +1782,60 @@ function abrirListaProjetosClienteJM(projetos, st) {
         abrirPaginaClienteJM(projeto, st);
       }
     <\/script>
-  </body>
+  
+<script>
+let envioOrcamentoIniciadoJM = false;
+
+function enviarOrcamentoJM(event) {
+  const form = event.target;
+  const status = document.getElementById('orcamento-status');
+  const button = form.querySelector('button[type="submit"]');
+
+  envioOrcamentoIniciadoJM = true;
+
+  if (button) {
+    button.disabled = true;
+    button.dataset.originalText = button.innerHTML;
+    button.innerHTML = '⏳ Enviando...';
+  }
+
+  if (status) {
+    status.className = 'form-submit-note sending';
+    status.textContent = 'Enviando sua solicitação...';
+  }
+
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const frame = document.getElementById('formsubmit-frame');
+  const form = document.getElementById('orcamento');
+  const status = document.getElementById('orcamento-status');
+  const button = form ? form.querySelector('button[type="submit"]') : null;
+
+  if (!frame) return;
+
+  frame.addEventListener('load', function () {
+    if (!envioOrcamentoIniciadoJM) return;
+
+    if (status) {
+      status.className = 'form-submit-note success';
+      status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
+    }
+
+    if (form) form.reset();
+
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = button.dataset.originalText || '🚀 Enviar solicitação';
+    }
+
+    envioOrcamentoIniciadoJM = false;
+  });
+});
+</script>
+
+</body>
   </html>
   `);
 }
@@ -1874,6 +1981,59 @@ document.addEventListener('DOMContentLoaded', function(){
   if (window.location.hash === '#area-cliente') {
     setTimeout(focarAreaClienteJM, 350);
   }
+});
+</script>
+
+
+<script>
+let envioOrcamentoIniciadoJM = false;
+
+function enviarOrcamentoJM(event) {
+  const form = event.target;
+  const status = document.getElementById('orcamento-status');
+  const button = form.querySelector('button[type="submit"]');
+
+  envioOrcamentoIniciadoJM = true;
+
+  if (button) {
+    button.disabled = true;
+    button.dataset.originalText = button.innerHTML;
+    button.innerHTML = '⏳ Enviando...';
+  }
+
+  if (status) {
+    status.className = 'form-submit-note sending';
+    status.textContent = 'Enviando sua solicitação...';
+  }
+
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const frame = document.getElementById('formsubmit-frame');
+  const form = document.getElementById('orcamento');
+  const status = document.getElementById('orcamento-status');
+  const button = form ? form.querySelector('button[type="submit"]') : null;
+
+  if (!frame) return;
+
+  frame.addEventListener('load', function () {
+    if (!envioOrcamentoIniciadoJM) return;
+
+    if (status) {
+      status.className = 'form-submit-note success';
+      status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
+    }
+
+    if (form) form.reset();
+
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = button.dataset.originalText || '🚀 Enviar solicitação';
+    }
+
+    envioOrcamentoIniciadoJM = false;
+  });
 });
 </script>
 

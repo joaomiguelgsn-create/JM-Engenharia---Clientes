@@ -404,8 +404,7 @@ button{cursor:pointer}
     brightness(1.08);
 }
 
-.brand .logo-box img{
-  width:72px;
+.brand .logo-box img{width:96px;
   height:auto;
   object-fit:contain;
 }
@@ -435,8 +434,7 @@ button{cursor:pointer}
   opacity:.95;
 }
 
-.footer-branding img{
-  width:90px;
+.footer-branding img{width:120px;
   height:auto;
   object-fit:contain;
   filter:
@@ -572,7 +570,7 @@ button{cursor:pointer}
       <h1>Soluções de <span>engenharia</span> com qualidade e confiança</h1>
       <p>Projetos completos e personalizados para transformar ideias em realidade.</p>
       <div class="actions">
-        <button class="btn primary" type="button" onclick="abrirOrcamento(event)">📄 Solicite um orçamento</button>
+        <button class="btn primary" type="button" onclick="abrirOrcamento(event)">📄 Abrir contrato • Solicite um orçamento</button>
         <a class="btn" href="#area-cliente">🏙️ Acompanhe seu projeto</a>
       </div>
       <div class="stats">
@@ -582,7 +580,7 @@ button{cursor:pointer}
       </div>
     </div>
 
-    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="formsubmit-frame" onsubmit="return enviarOrcamentoJM(event)">
+    <form class="quote-box" id="orcamento" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" target="formsubmit-frame" action="https://formsubmit.co/jmnetoengenharia@gmail.com" method="POST" onsubmit="return enviarOrcamentoJM(event)">
       <input type="hidden" name="_subject" value="Nova solicitação de orçamento - JM Neto Engenharia">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
@@ -1814,28 +1812,8 @@ async function consultarClienteJM(event) {
 
 <iframe name="formsubmit-frame" style="display:none;width:0;height:0;border:0;"></iframe>
 <script>
-function dispositivoMobileJM() {
-  return /Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
-    || (navigator.maxTouchPoints > 1 && window.innerWidth <= 900);
-}
 
-function enviarTradicionalFormSubmitJM(form, status) {
-  form.action = 'https://formsubmit.co/jmnetoengenharia@gmail.com';
-  form.method = 'POST';
-  form.target = 'formsubmit-frame';
-  HTMLFormElement.prototype.submit.call(form);
-
-  if (status) {
-    status.className = 'form-submit-note success';
-    status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
-  }
-
-  setTimeout(function () {
-    form.reset();
-  }, 1200);
-}
-
-async function enviarOrcamentoJM(event) {
+function enviarOrcamentoJM(event) {
   event.preventDefault();
 
   const form = event.target;
@@ -1853,51 +1831,13 @@ async function enviarOrcamentoJM(event) {
     status.textContent = 'Enviando sua solicitação...';
   }
 
-  try {
-    if (dispositivoMobileJM()) {
-      enviarTradicionalFormSubmitJM(form, status);
-      return false;
-    }
-
-    const formData = new FormData(form);
-
-    const response = await fetch('https://formsubmit.co/ajax/jmnetoengenharia@gmail.com', {
-      method: 'POST',
-      body: formData,
-      headers: { 'Accept': 'application/json' }
-    });
-
-    if (!response.ok) {
-      throw new Error('Falha no envio via AJAX');
-    }
-
-    if (status) {
-      status.className = 'form-submit-note success';
-      status.textContent = 'Solicitação enviada com sucesso. Em breve entraremos em contato.';
-    }
-
-    form.reset();
-
-  } catch (error) {
-    try {
-      enviarTradicionalFormSubmitJM(form, status);
-    } catch (fallbackError) {
-      if (status) {
-        status.className = 'form-submit-note error';
-        status.textContent = 'Não foi possível enviar agora. Tente novamente em alguns instantes.';
-      }
-    }
-  } finally {
-    if (button) {
-      setTimeout(function () {
-        button.disabled = false;
-        button.innerHTML = originalText || '🚀 Enviar solicitação';
-      }, 1200);
-    }
-  }
+  setTimeout(function () {
+    form.submit();
+  }, 300);
 
   return false;
 }
+
 </script>
 
 

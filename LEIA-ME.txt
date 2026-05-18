@@ -1,0 +1,12 @@
+JM Neto Engenharia - envio por Gmail via Vercel
+
+Arquivos incluídos:
+- index.html: formulário conectado em /api/send, mantendo as mensagens do site.
+- api/send.js: função serverless da Vercel que envia o e-mail pelo Gmail.
+- package.json: dependência do nodemailer.
+
+No Vercel, confira se já existem:
+EMAIL_USER = seu Gmail
+EMAIL_PASS = sua senha de app do Google, sem espaços
+
+Depois suba esses arquivos no projeto e faça redeploy.
